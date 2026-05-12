@@ -224,5 +224,322 @@ details.group[open] .group-title svg { transform: rotate(90deg); stroke: var(--a
 
   <div id="hist-list"></div>
 </div>
-
+  
 </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCj6zwAHo37Orengs-cfRuFiiCkzDxer4Y",
+  authDomain: "disprador-f965b.firebaseapp.com",
+  projectId: "disprador-f965b",
+  storageBucket: "disprador-f965b.firebasestorage.app",
+  messagingSenderId: "739900427310",
+  appId: "1:739900427310:web:631a4f8bcd5b2e71ac23bf"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const P = ''; 
+let currentTab = 'busca';
+let statusFilter = 'all';
+let searchResults = [];
+let globalLeads = []; 
+let userRole = localStorage.getItem('userRole') || '';
+
+// 1. SISTEMA DE LOGIN COM NOVAS SENHAS
+window.fazerLogin = function() {
+    const senha = document.getElementById('senha').value;
+    if(senha === 'fornoadmin123.') {
+        userRole = 'admin';
+        iniciarApp();
+    } else if(senha === 'vendedor1') {
+        userRole = 'vendedor';
+        iniciarApp();
+    } else {
+        alert('Senha incorreta!');
+    }
+}
+
+window.sair = function() {
+    localStorage.removeItem('userRole');
+    location.reload();
+}
+
+function iniciarApp() {
+    localStorage.setItem('userRole', userRole);
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    
+    document.getElementById('badgeUser').textContent = userRole === 'admin' ? 'Admin (Sair)' : 'Vendedor (Sair)';
+
+    if(userRole === 'vendedor') {
+        document.getElementById('tab-busca').style.display = 'none'; 
+        window.setTab('hist'); 
+    } else {
+        window.setTab('busca');
+    }
+}
+
+// 2. SINCRONIZAÇÃO EM TEMPO REAL COM FIREBASE
+onSnapshot(collection(db, "leads"), (snapshot) => {
+    globalLeads = snapshot.docs.map(doc => doc.data());
+    globalLeads.sort((a,b) => (b._savedAt || 0) - (a._savedAt || 0));
+    
+    document.getElementById('badgeTotal').textContent = globalLeads.length + ' leads salvos';
+    
+    if(currentTab === 'hist') window.renderHist();
+});
+
+window.upsertLeadFirebase = async function(lead) {
+    const ref = doc(db, "leads", lead.place_id);
+    const exists = globalLeads.find(l => l.place_id === lead.place_id);
+    if(!exists) {
+        await setDoc(ref, { ...lead, _status:'novo', _note:'', _savedAt: Date.now() });
+        return true; 
+    }
+    return false; 
+}
+
+window.mudarStatus = async function(pid, val) {
+    await updateDoc(doc(db, "leads", pid), { _status: val });
+}
+
+window.updateNota = async function(pid, texto) {
+    await updateDoc(doc(db, "leads", pid), { _note: texto });
+}
+
+window.setTab = function(t) {
+  currentTab = t;
+  document.getElementById('pane-busca').style.display = t === 'busca' ? 'block' : 'none';
+  document.getElementById('pane-hist').style.display = t === 'hist' ? 'block' : 'none';
+  document.getElementById('tab-busca').classList.toggle('on', t === 'busca');
+  document.getElementById('tab-hist').classList.toggle('on', t === 'hist');
+  if(t === 'hist') window.renderHist();
+}
+
+window.setStatusFilter = function(s) {
+  statusFilter = s;
+  document.querySelectorAll('.sf').forEach(el => el.classList.toggle('on', el.dataset.s === s));
+  window.renderHist();
+}
+
+function setStatus(msg, pct, hide) {
+  const w = document.getElementById('sw');
+  w.style.display = hide ? 'none' : 'block';
+  document.getElementById('st').textContent = msg;
+  document.getElementById('pf').style.width = (pct || 0) + '%';
+}
+
+// 3. MENSAGEM DE WHATSAPP DO VENDEDOR
+window.wa = function(raw, nomeEmpresa) {
+  if(!raw) return null;
+  const d = raw.replace(/\D/g,'');
+  const nome = nomeEmpresa ? nomeEmpresa : 'vocês';
+  const msg = encodeURIComponent(`Oii, bom dia! Eu falo no/na/com ${nome}?`);
+  return 'https://wa.me/' + (d.startsWith('55') ? d : '55'+d) + '?text=' + msg;
+}
+
+window.buscar = async function() {
+  const seg = document.getElementById('segmento').value.trim();
+  const cid = document.getElementById('cidade').value.trim();
+  const qtd = parseInt(document.getElementById('qtd').value);
+  if(!seg || !cid) { alert('Preencha segmento e cidade.'); return; }
+  
+  const btn = document.getElementById('btnB');
+  btn.disabled = true; searchResults = [];
+  document.getElementById('res').innerHTML = '';
+  setStatus('Buscando no Google Maps...', 10);
+  
+  try {
+    const q = `${seg} em ${cid}`;
+    let tok = null, pg = 0, max = qtd <= 20 ? 2 : 3, raw = [];
+    while(raw.length < qtd && pg < max) {
+      if(tok) await new Promise(r => setTimeout(r, 2200));
+      let url = `${P}/api/search?query=${encodeURIComponent(q)}`;
+      if(tok) url += `&pagetoken=${encodeURIComponent(tok)}`;
+      const d = await fetch(url).then(r => r.json());
+      if(d.status === 'ZERO_RESULTS') break;
+      if(d.error_message) throw new Error(d.error_message);
+      for(const r of (d.results||[])) { if(raw.length >= qtd) break; raw.push(r); }
+      tok = d.next_page_token || null; if(!tok) break; pg++;
+    }
+    
+    if(!raw.length) { setStatus('Nenhum resultado.', 0); btn.disabled = false; return; }
+    
+    const det = [];
+    for(let i = 0; i < raw.length; i++) {
+      setStatus(`Salvando no CRM: ${i+1}/${raw.length}...`, 10 + Math.round(i/raw.length * 85));
+      const d = await fetch(`${P}/api/details?place_id=${encodeURIComponent(raw[i].place_id)}`).then(r => r.json());
+      // Guarda o segmento e cidade para organizar as pastas
+      const lead = {...raw[i], ...(d.result||{}), _segmento: seg, _cidade: cid};
+      
+      const isNew = await window.upsertLeadFirebase(lead);
+      det.push({...lead, _isNew: isNew});
+      await new Promise(r => setTimeout(r, 80));
+    }
+    searchResults = det;
+    setStatus('', 100, true);
+    window.renderSearch(searchResults);
+  } catch(e) { setStatus('Erro: ' + e.message, 0); }
+  btn.disabled = false;
+}
+
+window.renderSearch = function(filt) {
+  const ct = filt.filter(l => l.formatted_phone_number).length;
+  const novos = filt.filter(l => l._isNew).length;
+  const dups = filt.length - novos;
+
+  let h = `
+  <div class="summary">
+    <div class="stat"><div class="stat-n">${filt.length}</div><div class="stat-l">encontrados</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--green)">${novos}</div><div class="stat-l">novos no CRM</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--accent2)">${dups}</div><div class="stat-l">já existiam</div></div>
+    <div class="stat"><div class="stat-n">${ct}</div><div class="stat-l">com telefone</div></div>
+  </div>`;
+
+  for(const l of filt) {
+    const ab = l.opening_hours?.open_now;
+    const th = l.opening_hours !== undefined;
+    const wl = window.wa(l.formatted_phone_number, l.name);
+    const saved = globalLeads.find(x => x.place_id === l.place_id);
+    const st = saved?._status || 'novo';
+    h += cardHTML(l, st, wl, ab, th, !l._isNew, saved?._note || '');
+  }
+  document.getElementById('res').innerHTML = h;
+}
+
+function cardHTML(l, st, wl, ab, th, isDup, nota) {
+  return `
+  <div class="card status-${st}" id="card-${l.place_id}">
+    <div class="card-top">
+      <div class="card-name">${l.name||'—'}</div>
+      <div class="card-right">
+        ${isDup ? '<span class="b b-dup">já no CRM</span>' : ''}
+        ${th ? `<span class="b ${ab?'b-open':'b-closed'}">${ab?'Aberto':'Fechado'}</span>` : ''}
+        <span class="b b-${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row">
+        <div class="row-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg></div>
+        <div class="row-body"><span class="row-label">Telefone</span><span class="row-val ${l.formatted_phone_number?'phone':'notel'}">${l.formatted_phone_number||'não disponível'}</span></div>
+      </div>
+      ${l.formatted_address ? `<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="row-body"><span class="row-label">Endereço</span><span class="row-val">${l.formatted_address}</span></div></div>` : ''}
+    </div>
+    <div class="note-row">
+      <textarea class="note-input" rows="1" placeholder="Anotação (sincroniza p/ todos)..." onchange="window.updateNota('${l.place_id}', this.value)">${nota}</textarea>
+    </div>
+    <div class="actions">
+      ${wl ? `<a href="${wl}" target="_blank" class="btn-act act-wa"><svg viewBox="0 0 24 24" style="width:13px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> WhatsApp</a>` : ''}
+      <select class="status-select" onchange="window.mudarStatus('${l.place_id}', this.value)">
+        <option value="novo" ${st==='novo'?'selected':''}>Novo</option>
+        <option value="contatado" ${st==='contatado'?'selected':''}>Contatado</option>
+        <option value="fechado" ${st==='fechado'?'selected':''}>Fechado</option>
+        <option value="descartado" ${st==='descartado'?'selected':''}>Descartado</option>
+      </select>
+    </div>
+  </div>`;
+}
+
+window.renderHist = function() {
+  const q = (document.getElementById('histSearch').value || '').toLowerCase();
+  let all = globalLeads;
+  
+  if(q) all = all.filter(l => (l.name||'').toLowerCase().includes(q) || (l.formatted_phone_number||'').includes(q) || (l.formatted_address||'').toLowerCase().includes(q));
+  if(statusFilter !== 'all') all = all.filter(l => l._status === statusFilter);
+
+  const stats = {
+      novo: globalLeads.filter(l=>l._status==='novo').length,
+      contatado: globalLeads.filter(l=>l._status==='contatado').length,
+      fechado: globalLeads.filter(l=>l._status==='fechado').length,
+      descartado: globalLeads.filter(l=>l._status==='descartado').length
+  };
+  
+  document.getElementById('hist-summary').innerHTML = `
+  <div class="summary">
+    <div class="stat"><div class="stat-n">${globalLeads.length}</div><div class="stat-l">total</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--muted)">${stats.novo}</div><div class="stat-l">novos</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--amber)">${stats.contatado}</div><div class="stat-l">contatados</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--green)">${stats.fechado}</div><div class="stat-l">fechados</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--red)">${stats.descartado}</div><div class="stat-l">descartados</div></div>
+  </div>`;
+
+  document.getElementById('hist-count').textContent = all.length + ' leads visíveis';
+
+  // Agrupamento (Acordeão)
+  const grupos = {};
+  for(const l of all) {
+    const nomeGrupo = (l._segmento && l._cidade) ? `${l._segmento} — ${l._cidade}`.toUpperCase() : 'BUSCAS ANTIGAS / GERAL';
+    if(!grupos[nomeGrupo]) grupos[nomeGrupo] = [];
+    grupos[nomeGrupo].push(l);
+  }
+
+  let h = '';
+  const nomesDosGrupos = Object.keys(grupos);
+
+  if(nomesDosGrupos.length === 0){
+    h = `<div class="empty">Nenhum lead encontrado.</div>`;
+  } else {
+    for(const nome of nomesDosGrupos) {
+      const leadsDoGrupo = grupos[nome];
+      
+      h += `
+      <details class="group">
+        <summary>
+          <div class="group-title">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            ${nome}
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn-sm" onclick="event.preventDefault(); window.expCSVGrupo('${nome}')" style="padding: 4px 8px; font-size:11px; font-weight:normal;">↓ Baixar Lista</button>
+            <div class="g-count">${leadsDoGrupo.length} leads</div>
+          </div>
+        </summary>
+        <div class="group-content">
+      `;
+      
+      for(const l of leadsDoGrupo){
+        const wl = window.wa(l.formatted_phone_number, l.name);
+        h += cardHTML(l, l._status || 'novo', wl, l.opening_hours?.open_now, l.opening_hours !== undefined, false, l._note || '');
+      }
+      h += `</div></details>`;
+    }
+  }
+  document.getElementById('hist-list').innerHTML = h;
+}
+
+// 4. FUNÇÕES DE EXPORTAR CSV (POR LISTA OU TUDO)
+window.gerarCSV = function(arrayLeads, nomeArquivo) {
+  if(!arrayLeads.length) { alert('Nenhum lead para exportar.'); return; }
+  const cols = ['Segmento/Lista','Nome','Telefone','Endereço','Status CRM','Anotação','Link WhatsApp'];
+  const rows = arrayLeads.map(l => {
+    const lista = (l._segmento && l._cidade) ? `${l._segmento} - ${l._cidade}` : 'Geral';
+    return [lista, l.name||'', l.formatted_phone_number||'', l.formatted_address||'', l._status||'novo', l._note||'', window.wa(l.formatted_phone_number, l.name)||''];
+  });
+  const csv = [cols, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'})), download: nomeArquivo + '.csv' });
+  a.click();
+}
+
+window.expCSVTudo = function() {
+  window.gerarCSV(globalLeads, 'CRM_Completo_LeadHunter');
+}
+
+window.expCSVGrupo = function(nomeDoGrupo) {
+  const leadsDoGrupo = globalLeads.filter(l => {
+      const n = (l._segmento && l._cidade) ? `${l._segmento} — ${l._cidade}`.toUpperCase() : 'BUSCAS ANTIGAS / GERAL';
+      return n === nomeDoGrupo;
+  });
+  window.gerarCSV(leadsDoGrupo, `Lista_${nomeDoGrupo.replace(/\s/g, '_')}`);
+}
+
+// Inicializa a aplicação se já houver sessão
+if(userRole) {
+    iniciarApp();
+}
+</script>
+</body>
+</html>
