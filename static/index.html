@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Buscador de Leads</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f4f0; --surface: #fff; --border: #e0ddd6;
+    --text: #1a1916; --muted: #7a7870; --radius: 12px; --radius-sm: 8px;
+    --green-bg: #d8f3dc; --green: #2d6a4f;
+    --red-bg: #fde8e8; --red: #9b2226;
+  }
+  body { font-family: Georgia, serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem; }
+  .container { max-width: 760px; margin: 0 auto; }
+  header { margin-bottom: 2rem; }
+  header h1 { font-size: 28px; font-weight: normal; letter-spacing: -0.5px; margin-bottom: 4px; }
+  header h1 span { font-style: italic; }
+  header p { font-size: 13px; color: var(--muted); font-family: 'Courier New', monospace; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+  .card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 1rem; font-family: 'Courier New', monospace; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; color: var(--muted); font-family: 'Courier New', monospace; }
+  .field input, .field select { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; font-family: Georgia, serif; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .field input:focus, .field select:focus { border-color: var(--text); background: #fff; }
+  .field-full { grid-column: 1 / -1; }
+  .btn-primary { width: 100%; padding: 13px; background: var(--text); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 15px; font-family: Georgia, serif; cursor: pointer; margin-top: 1rem; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.82; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .status-bar { text-align: center; font-size: 13px; color: var(--muted); font-family: 'Courier New', monospace; padding: 1rem; display: none; }
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
+  .stat-num { font-size: 26px; font-weight: normal; }
+  .stat-label { font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; margin-top: 2px; }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .results-header h2 { font-size: 16px; font-weight: normal; }
+  .btn-export { padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 13px; font-family: Georgia, serif; cursor: pointer; color: var(--text); }
+  .btn-export:hover { background: var(--bg); }
+  .lead-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 10px; transition: border-color 0.15s; }
+  .lead-card:hover { border-color: #b0ada6; }
+  .lead-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .lead-name { font-size: 16px; }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 99px; font-family: 'Courier New', monospace; white-space: nowrap; }
+  .badge-open { background: var(--green-bg); color: var(--green); }
+  .badge-closed { background: var(--red-bg); color: var(--red); }
+  .lead-info { display: grid; gap: 5px; }
+  .lead-row { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+  .lead-row-label { font-family: 'Courier New', monospace; font-size: 11px; color: var(--muted); min-width: 68px; padding-top: 1px; }
+  .lead-row-val { color: var(--text); line-height: 1.4; }
+  .lead-row-val.phone { font-size: 15px; font-weight: bold; letter-spacing: 0.3px; }
+  .lead-row-val.no-phone { color: var(--muted); font-style: italic; }
+  .stars { color: #b5860d; }
+  @media (max-width: 540px) { .form-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Buscador de <span>Leads</span></h1>
+    <p>// powered by Google Places API</p>
+  </header>
+
+  <div class="card">
+    <div class="card-title">Parâmetros de busca</div>
+    <div class="form-row">
+      <div class="field">
+        <label>Segmento</label>
+        <input type="text" id="segmento" placeholder="ex: dentista, academia, padaria" />
+      </div>
+      <div class="field">
+        <label>Cidade / região</label>
+        <input type="text" id="cidade" placeholder="ex: Palmas TO" />
+      </div>
+      <div class="field field-full">
+        <label>Quantidade de resultados</label>
+        <select id="quantidade">
+          <option value="5">5 leads</option>
+          <option value="10" selected>10 leads</option>
+          <option value="20">20 leads</option>
+          <option value="60">Máximo disponível (~60)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" id="btnBuscar" onclick="buscar()">Buscar leads</button>
+  </div>
+
+  <div class="status-bar" id="statusBar"></div>
+  <div id="results"></div>
+</div>
+
+<script>
+const PROXY = '';  // vazio = usa o mesmo servidor
+let leads = [];
+
+function status(msg, hide) {
+  const el = document.getElementById('statusBar');
+  el.style.display = hide ? 'none' : 'block';
+  el.textContent = msg;
+}
+
+async function buscar() {
+  const seg = document.getElementById('segmento').value.trim();
+  const cid = document.getElementById('cidade').value.trim();
+  const qtd = parseInt(document.getElementById('quantidade').value);
+  if (!seg || !cid) { alert('Preencha segmento e cidade.'); return; }
+
+  const btn = document.getElementById('btnBuscar');
+  btn.disabled = true;
+  leads = [];
+  document.getElementById('results').innerHTML = '';
+  status('Buscando negócios no Google Maps...');
+
+  try {
+    const query = `${seg} em ${cid}`;
+    let pageToken = null;
+    const maxPages = qtd <= 20 ? 2 : 3;
+    let paginas = 0;
+
+    while (leads.length < qtd && paginas < maxPages) {
+      if (pageToken) await new Promise(r => setTimeout(r, 2200));
+      let url = `${PROXY}/api/search?query=${encodeURIComponent(query)}`;
+      if (pageToken) url += `&pagetoken=${encodeURIComponent(pageToken)}`;
+      const data = await fetch(url).then(r => r.json());
+      if (data.status === 'ZERO_RESULTS') break;
+      if (data.error_message) throw new Error(data.error_message);
+      for (const r of (data.results || [])) {
+        if (leads.length >= qtd) break;
+        leads.push(r);
+      }
+      pageToken = data.next_page_token || null;
+      if (!pageToken) break;
+      paginas++;
+    }
+
+    if (!leads.length) { status('Nenhum resultado encontrado.'); btn.disabled = false; return; }
+
+    status(`Buscando detalhes de ${leads.length} leads...`);
+    const detalhados = [];
+    for (let i = 0; i < leads.length; i++) {
+      status(`Carregando detalhes: ${i + 1}/${leads.length}...`);
+      const d = await fetch(`${PROXY}/api/details?place_id=${encodeURIComponent(leads[i].place_id)}`).then(r => r.json());
+      detalhados.push({ ...leads[i], ...(d.result || {}) });
+      await new Promise(r => setTimeout(r, 80));
+    }
+    leads = detalhados;
+    status('', true);
+    renderResults();
+  } catch (e) {
+    status('Erro: ' + e.message);
+  }
+  btn.disabled = false;
+}
+
+function estrelas(r) {
+  if (!r) return '';
+  return '★'.repeat(Math.round(r)) + '☆'.repeat(5 - Math.round(r));
+}
+
+function renderResults() {
+  const comTel = leads.filter(l => l.formatted_phone_number).length;
+  const ratings = leads.filter(l => l.rating);
+  const media = ratings.length ? (ratings.reduce((a, b) => a + b.rating, 0) / ratings.length).toFixed(1) : '—';
+
+  let html = `
+    <div class="summary">
+      <div class="stat"><div class="stat-num">${leads.length}</div><div class="stat-label">leads encontrados</div></div>
+      <div class="stat"><div class="stat-num">${comTel}</div><div class="stat-label">com telefone</div></div>
+      <div class="stat"><div class="stat-num">${media}</div><div class="stat-label">avaliação média</div></div>
+    </div>
+    <div class="results-header">
+      <h2>Resultados</h2>
+      <button class="btn-export" onclick="exportarCSV()">↓ Exportar CSV</button>
+    </div>
+  `;
+
+  for (const l of leads) {
+    const aberto = l.opening_hours?.open_now;
+    const temHorario = l.opening_hours !== undefined;
+    html += `
+      <div class="lead-card">
+        <div class="lead-top">
+          <div class="lead-name">${l.name || '—'}</div>
+          ${temHorario ? `<span class="badge ${aberto ? 'badge-open' : 'badge-closed'}">${aberto ? 'Aberto' : 'Fechado'}</span>` : ''}
+        </div>
+        <div class="lead-info">
+          <div class="lead-row"><span class="lead-row-label">Telefone</span><span class="lead-row-val ${l.formatted_phone_number ? 'phone' : 'no-phone'}">${l.formatted_phone_number || 'não disponível'}</span></div>
+          ${l.formatted_address ? `<div class="lead-row"><span class="lead-row-label">Endereço</span><span class="lead-row-val">${l.formatted_address}</span></div>` : ''}
+          ${l.rating ? `<div class="lead-row"><span class="lead-row-label">Avaliação</span><span class="lead-row-val"><span class="stars">${estrelas(l.rating)}</span> ${l.rating.toFixed(1)} (${l.user_ratings_total || 0} reviews)</span></div>` : ''}
+          ${l.website ? `<div class="lead-row"><span class="lead-row-label">Site</span><span class="lead-row-val"><a href="${l.website}" target="_blank" style="color:inherit">${l.website.replace(/^https?:\/\/(www\.)?/,'').substring(0,55)}</a></span></div>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('results').innerHTML = html;
+}
+
+function exportarCSV() {
+  const cols = ['Nome','Telefone','Endereço','Avaliação','Nº Avaliações','Site','Aberto agora'];
+  const rows = leads.map(l => [
+    l.name || '', l.formatted_phone_number || '', l.formatted_address || '',
+    l.rating || '', l.user_ratings_total || '', l.website || '',
+    l.opening_hours ? (l.opening_hours.open_now ? 'Sim' : 'Não') : ''
+  ]);
+  const csv = [cols, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'})), download: 'leads.csv' });
+  a.click();
+}
+</script>
+</body>
+</html>
