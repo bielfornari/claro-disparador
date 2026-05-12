@@ -6,7 +6,8 @@ import os
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
-API_KEY = os.environ.get('GOOGLE_API_KEY', '')
+# CHAVE DE API ADICIONADA AQUI:
+API_KEY = 'AIzaSyDRRG2xcOB8iXk7YKcjperpsCqz11O6pB4'
 
 @app.route('/')
 def index():
