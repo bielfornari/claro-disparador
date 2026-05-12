@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>LeadHunter - CRM</title>
+<title>LeadHunter</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-/* Todo o seu CSS original mantido com perfeição */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d0d0f;--surface:#17171a;--surface2:#1e1e23;
@@ -22,13 +21,6 @@
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2.5rem 1rem 5rem}
 .wrap{max-width:860px;margin:0 auto}
 
-/* ESTILOS DO LOGIN */
-#login-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:9999; display:flex; align-items:center; justify-content:center; }
-.login-box { background:var(--surface); padding:2.5rem; border-radius:var(--r); border:1px solid var(--border); width:90%; max-width:400px; text-align:center; }
-.login-box h2 { font-family:'Syne',sans-serif; margin-bottom:1rem; }
-.login-box input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:var(--rs); padding:12px; font-size:15px; color:var(--text); outline:none; margin-bottom:1rem; text-align:center; }
-.login-box button { width:100%; padding:12px; background:var(--accent); color:#fff; border:none; border-radius:var(--rs); font-size:15px; font-weight:600; cursor:pointer; font-family:'Syne',sans-serif;}
-
 header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:2rem}
 .logo{display:flex;align-items:center;gap:11px}
 .logo-icon{width:40px;height:40px;background:var(--accent);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -37,8 +29,9 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .logo p{font-size:12px;color:var(--muted);margin-top:1px}
 .hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .badge-pill{font-size:12px;padding:6px 13px;border-radius:99px;border:1px solid}
-.badge-user{color:var(--amber);background:var(--amber-bg);border-color:rgba(245,158,11,.22); cursor:pointer;}
+.badge-credit{color:var(--accent2);background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.22)}
 .badge-total{color:var(--muted);background:var(--surface);border-color:var(--border);cursor:pointer;transition:border-color .15s}
+.badge-total:hover{border-color:var(--border2)}
 
 .tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:1.25rem}
 .tab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:500;border-radius:10px;cursor:pointer;color:var(--muted);transition:all .15s;border:none;background:transparent;font-family:'DM Sans',sans-serif}
@@ -52,6 +45,7 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .field label{font-size:12px;color:var(--muted);font-weight:500}
 .field input,.field select{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color .15s;width:100%}
 .field input:focus,.field select:focus{border-color:var(--accent)}
+.field input::placeholder{color:var(--muted)}
 .field select option{background:#1e1e23}
 .full{grid-column:1/-1}
 
@@ -59,10 +53,13 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .chip{display:flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--border);border-radius:99px;font-size:13px;color:var(--muted);cursor:pointer;background:var(--surface2);transition:all .15s;user-select:none}
 .chip input{display:none}
 .chip.on{border-color:var(--accent);color:var(--accent2);background:rgba(124,92,252,.1)}
+.chip svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-.btn-search{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-family:'Syne',sans-serif;font-weight:600;cursor:pointer;margin-top:1.25rem;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-search{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-family:'Syne',sans-serif;font-weight:600;cursor:pointer;margin-top:1.25rem;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-search:hover{opacity:.87}
+.btn-search:active{transform:scale(.99)}
 .btn-search:disabled{opacity:.3;cursor:not-allowed}
+.btn-search svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
 .status-wrap{display:none;text-align:center;padding:1.5rem}
 .status-txt{font-size:13px;color:var(--muted)}
@@ -77,10 +74,16 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
 .rh-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:600}
 .rh-acts{display:flex;gap:8px;flex-wrap:wrap}
-.btn-sm{padding:8px 14px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:6px;}
+.btn-sm{padding:8px 14px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text);transition:background .15s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-sm:hover{background:var(--surface2)}
+.btn-sm svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-wa-all{border-color:rgba(37,211,102,.25);color:var(--wa)}
+.btn-wa-all:hover{background:var(--wa-bg)}
+.btn-danger{border-color:rgba(248,113,113,.25);color:var(--red)}
+.btn-danger:hover{background:var(--red-bg)}
 
 .status-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
-.sf{padding:6px 12px;border:1px solid var(--border);border-radius:99px;font-size:12px;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s;}
+.sf{padding:6px 12px;border:1px solid var(--border);border-radius:99px;font-size:12px;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s;font-family:'DM Sans',sans-serif}
 .sf.on{font-weight:500}
 .sf-all.on{border-color:var(--accent2);color:var(--accent2);background:rgba(124,92,252,.1)}
 .sf-novo.on{border-color:var(--muted);color:var(--text);background:var(--surface2)}
@@ -88,7 +91,23 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .sf-fechado.on{border-color:var(--green);color:var(--green);background:var(--green-bg)}
 .sf-descartado.on{border-color:var(--red);color:var(--red);background:var(--red-bg)}
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:10px;}
+/* ESTILOS DOS GRUPOS EXPANSÍVEIS (ACORDEÃO) */
+details.group { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 1rem; transition: border-color .15s; }
+details.group:hover { border-color: var(--border2); }
+details.group > summary { list-style: none; cursor: pointer; padding: 1.2rem 1.5rem; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; user-select: none; transition: background .15s; border-radius: var(--r); }
+details.group > summary::-webkit-details-marker { display: none; }
+details.group > summary:hover { background: var(--surface2); }
+details.group[open] > summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: 1px solid var(--border); }
+.group-content { padding: 1.25rem; background: var(--bg); border-bottom-left-radius: var(--r); border-bottom-right-radius: var(--r); }
+.g-count { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--accent2); background: rgba(124,92,252,.1); padding: 4px 10px; border-radius: 99px; border: 1px solid rgba(124,92,252,.2); }
+.group-title { display: flex; align-items: center; gap: 10px; color: var(--text); }
+.group-title svg { width: 18px; height: 18px; stroke: var(--muted); stroke-width: 2.5; fill: none; transition: transform 0.2s; }
+details.group[open] .group-title svg { transform: rotate(90deg); stroke: var(--accent); }
+/* FIM ESTILOS DOS GRUPOS */
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:10px;transition:border-color .15s}
+.card:last-child {margin-bottom: 0;} /* Tira a margem do último card dentro da pasta */
+.card:hover{border-color:var(--border2)}
 .card.status-contatado{border-left:3px solid var(--amber)}
 .card.status-fechado{border-left:3px solid var(--green)}
 .card.status-descartado{border-left:3px solid var(--red);opacity:.6}
@@ -107,6 +126,7 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .rows{display:grid;gap:8px}
 .row{display:flex;align-items:flex-start;gap:10px}
 .row-icon{width:30px;height:30px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.row-icon svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .row-body{display:flex;flex-direction:column;gap:1px;padding-top:4px}
 .row-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 .row-val{font-size:14px;color:var(--text);line-height:1.4}
@@ -115,31 +135,32 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .stars{color:var(--amber)}
 
 .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
-.btn-act{padding:7px 13px;border-radius:var(--rs);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;border:none;font-weight:500;text-decoration:none}
+.btn-act{padding:7px 13px;border-radius:var(--rs);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;border:none;transition:opacity .15s;font-weight:500;text-decoration:none}
+.btn-act:hover{opacity:.82}
+.btn-act svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .act-wa{background:var(--wa-bg);color:var(--wa);border:1px solid rgba(37,211,102,.2)}
 .act-copy{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.act-copy.ok{color:var(--green)}
 
 .status-select{margin-left:auto;padding:7px 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface2);color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;outline:none}
-.note-row{margin-top:8px}
-.note-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:8px 12px;font-size:13px;color:var(--text);outline:none;resize:none;}
+.status-select option{background:#1e1e23}
 
-.hist-search{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:14px;width:100%;margin-bottom:1rem;color:var(--text);outline:none;}
+.note-row{margin-top:8px}
+.note-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;resize:none;transition:border-color .15s}
+.note-input:focus{border-color:var(--accent)}
+.note-input::placeholder{color:var(--muted)}
+
+.hist-search{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;width:100%;margin-bottom:1rem;transition:border-color .15s}
+.hist-search:focus{border-color:var(--accent)}
+.hist-search::placeholder{color:var(--muted)}
+
 .empty{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
-@media(max-width:600px){.form-grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(3,1fr)}.stat-n{font-size:18px}}
+@media(max-width:380px){.summary{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-
-<div id="login-overlay">
-  <div class="login-box">
-    <h2>Acesso ao CRM</h2>
-    <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Digite sua senha de acesso</p>
-    <input type="password" id="senha" placeholder="Sua senha" onkeypress="if(event.key==='Enter') window.fazerLogin()"/>
-    <button onclick="window.fazerLogin()">Entrar</button>
-  </div>
-</div>
-
-<div class="wrap" id="app-content" style="display:none;">
+<div class="wrap">
 
 <header>
   <div class="logo">
@@ -148,18 +169,18 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
     </div>
     <div>
       <h1>LeadHunter</h1>
-      <p>Gerador & CRM Sincronizado</p>
+      <p>Buscador de leads — histórico persistente</p>
     </div>
   </div>
   <div class="hdr-right">
-    <div class="badge-pill badge-user" id="badgeUser" onclick="window.sair()">Admin</div>
-    <div class="badge-pill badge-total" id="badgeTotal" onclick="window.setTab('hist')">0 leads salvos</div>
+    <div class="badge-pill badge-credit">~540 buscas grátis/mês</div>
+    <div class="badge-pill badge-total" id="badgeTotal" onclick="irParaHistorico()">0 leads salvos</div>
   </div>
 </header>
 
-<div class="tabs" id="menu-tabs">
-  <button class="tab on" id="tab-busca" onclick="window.setTab('busca')">Buscar leads</button>
-  <button class="tab" id="tab-hist" onclick="window.setTab('hist')">Histórico & CRM</button>
+<div class="tabs">
+  <button class="tab on" id="tab-busca" onclick="setTab('busca')">Buscar leads</button>
+  <button class="tab" id="tab-hist" onclick="setTab('hist')">Histórico & CRM</button>
 </div>
 
 <div id="pane-busca">
@@ -183,8 +204,37 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
           <option value="60">Máximo (~60)</option>
         </select>
       </div>
+      <div class="field">
+        <label>Avaliação mínima</label>
+        <select id="minRating">
+          <option value="0">Qualquer avaliação</option>
+          <option value="3">3+ estrelas</option>
+          <option value="4">4+ estrelas</option>
+          <option value="4.5">4.5+ estrelas</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label>Filtros rápidos</label>
+        <div class="chips">
+          <label class="chip" id="c1"><input type="checkbox" id="f-tel"/>
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg>
+            Apenas com telefone
+          </label>
+          <label class="chip" id="c2"><input type="checkbox" id="f-open"/>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Apenas abertos agora
+          </label>
+          <label class="chip" id="c3"><input type="checkbox" id="f-site"/>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Sem site (oportunidade!)
+          </label>
+        </div>
+      </div>
     </div>
-    <button class="btn-search" id="btnB" onclick="window.buscar()">Buscar leads e Salvar no CRM</button>
+    <button class="btn-search" id="btnB" onclick="buscar()">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Buscar leads
+    </button>
   </div>
 
   <div class="status-wrap" id="sw">
@@ -196,220 +246,211 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 </div>
 
 <div id="pane-hist" style="display:none">
-  <input class="hist-search" id="histSearch" placeholder="Buscar por nome, telefone, cidade..." oninput="window.renderHist()"/>
+  <input class="hist-search" id="histSearch" placeholder="Buscar por nome, telefone, cidade..." oninput="renderHist()"/>
   <div class="status-filter">
-    <button class="sf sf-all on" data-s="all" onclick="window.setStatusFilter('all')">Todos</button>
-    <button class="sf sf-novo" data-s="novo" onclick="window.setStatusFilter('novo')">Novos</button>
-    <button class="sf sf-contatado" data-s="contatado" onclick="window.setStatusFilter('contatado')">Contatados</button>
-    <button class="sf sf-fechado" data-s="fechado" onclick="window.setStatusFilter('fechado')">Fechados</button>
-    <button class="sf sf-descartado" data-s="descartado" onclick="window.setStatusFilter('descartado')">Descartados</button>
+    <button class="sf sf-all on" data-s="all" onclick="setStatusFilter('all')">Todos</button>
+    <button class="sf sf-novo" data-s="novo" onclick="setStatusFilter('novo')">Novos</button>
+    <button class="sf sf-contatado" data-s="contatado" onclick="setStatusFilter('contatado')">Contatados</button>
+    <button class="sf sf-fechado" data-s="fechado" onclick="setStatusFilter('fechado')">Fechados</button>
+    <button class="sf sf-descartado" data-s="descartado" onclick="setStatusFilter('descartado')">Descartados</button>
   </div>
   <div id="hist-summary" style="margin-bottom:1rem"></div>
+  <div class="rh">
+    <div class="rh-title" id="hist-count">0 leads</div>
+    <div class="rh-acts">
+      <button class="btn-sm btn-wa-all" onclick="expWA()">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Lista WhatsApp
+      </button>
+      <button class="btn-sm" onclick="expCSV()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV
+      </button>
+      <button class="btn-sm btn-danger" onclick="limparTudo()">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        Limpar tudo
+      </button>
+    </div>
+  </div>
   <div id="hist-list"></div>
 </div>
 
 </div>
+<script>
+const P='';
+const STORE='lh_leads_v2';
+let currentTab='busca';
+let statusFilter='all';
+let searchResults=[];
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+function getAll(){try{return JSON.parse(localStorage.getItem(STORE)||'[]');}catch{return[];}}
+function saveAll(arr){localStorage.setItem(STORE,JSON.stringify(arr));}
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCj6zwAHo37Orengs-cfRuFiiCkzDxer4Y",
-  authDomain: "disprador-f965b.firebaseapp.com",
-  projectId: "disprador-f965b",
-  storageBucket: "disprador-f965b.firebasestorage.app",
-  messagingSenderId: "739900427310",
-  appId: "1:739900427310:web:631a4f8bcd5b2e71ac23bf"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-const P = ''; 
-let currentTab = 'busca';
-let statusFilter = 'all';
-let searchResults = [];
-let globalLeads = []; // Agora a fonte de verdade é o Firebase
-let userRole = localStorage.getItem('userRole') || '';
-
-// SISTEMA DE LOGIN SIMPLES
-window.fazerLogin = function() {
-    const senha = document.getElementById('senha').value;
-    if(senha === 'admin123') {
-        userRole = 'admin';
-        iniciarApp();
-    } else if(senha === 'vendedor1') {
-        userRole = 'vendedor';
-        iniciarApp();
-    } else {
-        alert('Senha incorreta!');
-    }
+function upsertLead(lead){
+  const all=getAll();
+  const idx=all.findIndex(l=>l.place_id===lead.place_id);
+  if(idx===-1){
+    all.unshift({...lead,_status:'novo',_note:'',_savedAt:Date.now(),_isNew:true});
+  } else {
+    // Se quiser que buscas novas atualizem o segmento de um lead antigo, descomente abaixo:
+    // all[idx]._segmento = lead._segmento || all[idx]._segmento;
+    // all[idx]._cidade = lead._cidade || all[idx]._cidade;
+  }
+  saveAll(all);
+  updateBadge();
+  return idx===-1;
 }
 
-window.sair = function() {
-    localStorage.removeItem('userRole');
-    location.reload();
+function updateLead(place_id,fields){
+  const all=getAll();
+  const idx=all.findIndex(l=>l.place_id===place_id);
+  if(idx!==-1){Object.assign(all[idx],fields);saveAll(all);}
 }
 
-function iniciarApp() {
-    localStorage.setItem('userRole', userRole);
-    document.getElementById('login-overlay').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
-    
-    document.getElementById('badgeUser').textContent = userRole === 'admin' ? 'Acesso: Admin' : 'Acesso: Vendedor';
-
-    if(userRole === 'vendedor') {
-        document.getElementById('tab-busca').style.display = 'none'; // Esconde aba de busca pro vendedor
-        window.setTab('hist'); // Força ele a cair direto no CRM
-    } else {
-        window.setTab('busca');
-    }
+function updateBadge(){
+  const n=getAll().length;
+  document.getElementById('badgeTotal').textContent=n+' lead'+(n!==1?'s':'')+' salvos';
 }
 
-// SINCRONIZAÇÃO EM TEMPO REAL COM FIREBASE
-onSnapshot(collection(db, "leads"), (snapshot) => {
-    globalLeads = snapshot.docs.map(doc => doc.data());
-    // Ordena os leads mais recentes primeiro (baseado no _savedAt)
-    globalLeads.sort((a,b) => (b._savedAt || 0) - (a._savedAt || 0));
-    
-    document.getElementById('badgeTotal').textContent = globalLeads.length + ' leads salvos';
-    
-    if(currentTab === 'hist') window.renderHist();
-    if(currentTab === 'busca' && searchResults.length > 0) window.applyFilters();
+function setTab(t){
+  currentTab=t;
+  document.getElementById('pane-busca').style.display=t==='busca'?'block':'none';
+  document.getElementById('pane-hist').style.display=t==='hist'?'block':'none';
+  document.getElementById('tab-busca').classList.toggle('on',t==='busca');
+  document.getElementById('tab-hist').classList.toggle('on',t==='hist');
+  if(t==='hist')renderHist();
+}
+
+function irParaHistorico(){setTab('hist');}
+
+function setStatusFilter(s){
+  statusFilter=s;
+  document.querySelectorAll('.sf').forEach(el=>el.classList.toggle('on',el.dataset.s===s));
+  renderHist();
+}
+
+['c1','c2','c3'].forEach(id=>{
+  const chip=document.getElementById(id);
+  chip.querySelector('input').addEventListener('change',()=>{
+    chip.classList.toggle('on',chip.querySelector('input').checked);
+    applyFilters();
+  });
 });
 
-window.upsertLeadFirebase = async function(lead) {
-    const ref = doc(db, "leads", lead.place_id);
-    const exists = globalLeads.find(l => l.place_id === lead.place_id);
-    if(!exists) {
-        // Se for lead novo, salva no banco de dados na nuvem
-        await setDoc(ref, { ...lead, _status:'novo', _note:'', _savedAt: Date.now() });
-        return true; // Era novo
+function setStatus(msg,pct,hide){
+  const w=document.getElementById('sw');
+  w.style.display=hide?'none':'block';
+  document.getElementById('st').textContent=msg;
+  document.getElementById('pf').style.width=(pct||0)+'%';
+}
+
+function wa(raw){
+  if(!raw)return null;
+  const d=raw.replace(/\D/g,'');
+  return'https://wa.me/'+(d.startsWith('55')?d:'55'+d);
+}
+function stars(r){return r?'★'.repeat(Math.round(r))+'☆'.repeat(5-Math.round(r)):'';}
+
+async function buscar(){
+  const seg=document.getElementById('segmento').value.trim();
+  const cid=document.getElementById('cidade').value.trim();
+  const qtd=parseInt(document.getElementById('qtd').value);
+  if(!seg||!cid){alert('Preencha segmento e cidade.');return;}
+  const btn=document.getElementById('btnB');
+  btn.disabled=true;searchResults=[];
+  document.getElementById('res').innerHTML='';
+  setStatus('Buscando no Google Maps...',10);
+  try{
+    const q=`${seg} em ${cid}`;
+    let tok=null,pg=0,max=qtd<=20?2:3,raw=[];
+    while(raw.length<qtd&&pg<max){
+      if(tok)await new Promise(r=>setTimeout(r,2200));
+      let url=`${P}/api/search?query=${encodeURIComponent(q)}`;
+      if(tok)url+=`&pagetoken=${encodeURIComponent(tok)}`;
+      const d=await fetch(url).then(r=>r.json());
+      if(d.status==='ZERO_RESULTS')break;
+      if(d.error_message)throw new Error(d.error_message);
+      for(const r of(d.results||[])){if(raw.length>=qtd)break;raw.push(r);}
+      tok=d.next_page_token||null;if(!tok)break;pg++;
     }
-    return false; // Já existia
-}
-
-window.mudarStatus = async function(pid, val) {
-    await updateDoc(doc(db, "leads", pid), { _status: val });
-}
-
-window.updateNota = async function(pid, texto) {
-    await updateDoc(doc(db, "leads", pid), { _note: texto });
-}
-
-window.setTab = function(t) {
-  currentTab = t;
-  document.getElementById('pane-busca').style.display = t === 'busca' ? 'block' : 'none';
-  document.getElementById('pane-hist').style.display = t === 'hist' ? 'block' : 'none';
-  document.getElementById('tab-busca').classList.toggle('on', t === 'busca');
-  document.getElementById('tab-hist').classList.toggle('on', t === 'hist');
-  if(t === 'hist') window.renderHist();
-}
-
-window.setStatusFilter = function(s) {
-  statusFilter = s;
-  document.querySelectorAll('.sf').forEach(el => el.classList.toggle('on', el.dataset.s === s));
-  window.renderHist();
-}
-
-function setStatus(msg, pct, hide) {
-  const w = document.getElementById('sw');
-  w.style.display = hide ? 'none' : 'block';
-  document.getElementById('st').textContent = msg;
-  document.getElementById('pf').style.width = (pct || 0) + '%';
-}
-
-// WHATSAPP INTELIGENTE PRÉ-PREENCHIDO
-window.wa = function(raw, nomeEmpresa) {
-  if(!raw) return null;
-  const d = raw.replace(/\D/g,'');
-  const nome = nomeEmpresa ? nomeEmpresa : 'empresa';
-  const msg = encodeURIComponent(`Olá, equipe da ${nome}! Tudo bem? Vi que vocês estão na região e gostaria de falar rapidamente com o responsável sobre...`);
-  return 'https://wa.me/' + (d.startsWith('55') ? d : '55'+d) + '?text=' + msg;
-}
-
-window.buscar = async function() {
-  const seg = document.getElementById('segmento').value.trim();
-  const cid = document.getElementById('cidade').value.trim();
-  const qtd = parseInt(document.getElementById('qtd').value);
-  if(!seg || !cid) { alert('Preencha segmento e cidade.'); return; }
-  
-  const btn = document.getElementById('btnB');
-  btn.disabled = true; searchResults = [];
-  document.getElementById('res').innerHTML = '';
-  setStatus('Buscando no Google Maps...', 10);
-  
-  try {
-    const q = `${seg} em ${cid}`;
-    let tok = null, pg = 0, max = qtd <= 20 ? 2 : 3, raw = [];
-    while(raw.length < qtd && pg < max) {
-      if(tok) await new Promise(r => setTimeout(r, 2200));
-      let url = `${P}/api/search?query=${encodeURIComponent(q)}`;
-      if(tok) url += `&pagetoken=${encodeURIComponent(tok)}`;
-      const d = await fetch(url).then(r => r.json());
-      if(d.status === 'ZERO_RESULTS') break;
-      if(d.error_message) throw new Error(d.error_message);
-      for(const r of (d.results||[])) { if(raw.length >= qtd) break; raw.push(r); }
-      tok = d.next_page_token || null; if(!tok) break; pg++;
+    if(!raw.length){setStatus('Nenhum resultado.',0);btn.disabled=false;return;}
+    const det=[];
+    for(let i=0;i<raw.length;i++){
+      setStatus(`Carregando detalhes: ${i+1}/${raw.length}...`,10+Math.round(i/raw.length*85));
+      const d=await fetch(`${P}/api/details?place_id=${encodeURIComponent(raw[i].place_id)}`).then(r=>r.json());
+      // AQUI: Adicionamos o segmento e a cidade dentro das informações do lead!
+      const lead={...raw[i],...(d.result||{}), _segmento: seg, _cidade: cid};
+      const isNew=upsertLead(lead);
+      det.push({...lead,_isNew:isNew});
+      await new Promise(r=>setTimeout(r,80));
     }
-    
-    if(!raw.length) { setStatus('Nenhum resultado.', 0); btn.disabled = false; return; }
-    
-    const det = [];
-    for(let i = 0; i < raw.length; i++) {
-      setStatus(`Salvando no CRM: ${i+1}/${raw.length}...`, 10 + Math.round(i/raw.length * 85));
-      const d = await fetch(`${P}/api/details?place_id=${encodeURIComponent(raw[i].place_id)}`).then(r => r.json());
-      const lead = {...raw[i], ...(d.result||{})};
-      
-      // Salva no banco em nuvem!
-      const isNew = await window.upsertLeadFirebase(lead);
-      det.push({...lead, _isNew: isNew});
-      await new Promise(r => setTimeout(r, 80));
-    }
-    searchResults = det;
-    setStatus('', 100, true);
-    window.applyFilters();
-  } catch(e) { setStatus('Erro: ' + e.message, 0); }
-  btn.disabled = false;
+    searchResults=det;
+    setStatus('',100,true);
+    applyFilters();
+  }catch(e){setStatus('Erro: '+e.message,0);}
+  btn.disabled=false;
 }
 
-window.applyFilters = function() {
-  window.renderSearch(searchResults);
+function applyFilters(){
+  const ft=document.getElementById('f-tel').checked;
+  const fo=document.getElementById('f-open').checked;
+  const fs=document.getElementById('f-site').checked;
+  const mr=parseFloat(document.getElementById('minRating').value)||0;
+  const filt=searchResults.filter(l=>{
+    if(ft&&!l.formatted_phone_number)return false;
+    if(fo&&!l.opening_hours?.open_now)return false;
+    if(fs&&l.website)return false;
+    if(mr&&(l.rating||0)<mr)return false;
+    return true;
+  });
+  renderSearch(filt,searchResults.length);
 }
 
-window.renderSearch = function(filt) {
-  const ct = filt.filter(l => l.formatted_phone_number).length;
-  const novos = filt.filter(l => l._isNew).length;
-  const dups = filt.length - novos;
+function renderSearch(filt,total){
+  const ct=filt.filter(l=>l.formatted_phone_number).length;
+  const rs=filt.filter(l=>l.rating);
+  const med=rs.length?(rs.reduce((a,b)=>a+b.rating,0)/rs.length).toFixed(1):'—';
+  const novos=filt.filter(l=>l._isNew).length;
+  const dups=filt.length-novos;
 
-  let h = `
+  let h=`
   <div class="summary">
     <div class="stat"><div class="stat-n">${filt.length}</div><div class="stat-l">encontrados</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--green)">${novos}</div><div class="stat-l">novos no CRM</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--accent2)">${dups}</div><div class="stat-l">já existiam</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--green)">${novos}</div><div class="stat-l">novos leads</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--accent2)">${dups}</div><div class="stat-l">já no histórico</div></div>
     <div class="stat"><div class="stat-n">${ct}</div><div class="stat-l">com telefone</div></div>
+    <div class="stat"><div class="stat-n">${med}</div><div class="stat-l">avaliação média</div></div>
+  </div>
+  <div class="rh">
+    <div class="rh-title">${filt.length} leads${filt.length!==total?' (filtrados de '+total+')':''}</div>
+    <div class="rh-acts">
+      <button class="btn-sm" onclick="setTab('hist')">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+        Ver histórico completo
+      </button>
+    </div>
   </div>`;
 
-  for(const l of filt) {
-    const ab = l.opening_hours?.open_now;
-    const th = l.opening_hours !== undefined;
-    const wl = window.wa(l.formatted_phone_number, l.name);
-    const saved = globalLeads.find(x => x.place_id === l.place_id);
-    const st = saved?._status || 'novo';
-    h += cardHTML(l, st, wl, ab, th, !l._isNew, saved?._note || '');
+  for(const l of filt){
+    const ab=l.opening_hours?.open_now;
+    const th=l.opening_hours!==undefined;
+    const wl=wa(l.formatted_phone_number);
+    const saved=getAll().find(x=>x.place_id===l.place_id);
+    const st=saved?._status||'novo';
+    h+=cardHTML(l,st,wl,ab,th,!l._isNew);
   }
-  document.getElementById('res').innerHTML = h;
+  if(!filt.length)h+=`<div class="empty">Nenhum lead corresponde aos filtros aplicados.</div>`;
+  document.getElementById('res').innerHTML=h;
 }
 
-function cardHTML(l, st, wl, ab, th, isDup, nota) {
-  return `
+function cardHTML(l,st,wl,ab,th,isDup){
+  return`
   <div class="card status-${st}" id="card-${l.place_id}">
     <div class="card-top">
       <div class="card-name">${l.name||'—'}</div>
       <div class="card-right">
-        ${isDup ? '<span class="b b-dup">já no CRM</span>' : ''}
-        ${th ? `<span class="b ${ab?'b-open':'b-closed'}">${ab?'Aberto':'Fechado'}</span>` : ''}
+        ${isDup?'<span class="b b-dup">já salvo</span>':''}
+        ${th?`<span class="b ${ab?'b-open':'b-closed'}">${ab?'Aberto':'Fechado'}</span>`:''}
         <span class="b b-${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span>
       </div>
     </div>
@@ -418,14 +459,17 @@ function cardHTML(l, st, wl, ab, th, isDup, nota) {
         <div class="row-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg></div>
         <div class="row-body"><span class="row-label">Telefone</span><span class="row-val ${l.formatted_phone_number?'phone':'notel'}">${l.formatted_phone_number||'não disponível'}</span></div>
       </div>
-      ${l.formatted_address ? `<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="row-body"><span class="row-label">Endereço</span><span class="row-val">${l.formatted_address}</span></div></div>` : ''}
+      ${l.formatted_address?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="row-body"><span class="row-label">Endereço</span><span class="row-val">${l.formatted_address}</span></div></div>`:''}
+      ${l.rating?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="row-body"><span class="row-label">Avaliação</span><span class="row-val"><span class="stars">${stars(l.rating)}</span> ${l.rating.toFixed(1)} <span style="color:var(--muted);font-size:12px">(${l.user_ratings_total||0} reviews)</span></span></div></div>`:''}
+      ${l.website?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="row-body"><span class="row-label">Site</span><span class="row-val"><a href="${l.website}" target="_blank" style="color:var(--accent2);text-decoration:none">${l.website.replace(/^https?:\/\/(www\.)?/,'').substring(0,55)}</a></span></div></div>`:''}
     </div>
     <div class="note-row">
-      <textarea class="note-input" rows="1" placeholder="Anotação (sincroniza p/ todos)..." onchange="window.updateNota('${l.place_id}', this.value)">${nota}</textarea>
+      <textarea class="note-input" rows="1" placeholder="Anotação sobre este lead..." onchange="updateLead('${l.place_id}',{_note:this.value})">${(getAll().find(x=>x.place_id===l.place_id)||{})._note||''}</textarea>
     </div>
     <div class="actions">
-      ${wl ? `<a href="${wl}" target="_blank" class="btn-act act-wa"><svg viewBox="0 0 24 24" style="width:13px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> WhatsApp</a>` : ''}
-      <select class="status-select" onchange="window.mudarStatus('${l.place_id}', this.value)">
+      ${wl?`<a href="${wl}" target="_blank" class="btn-act act-wa"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>WhatsApp</a>`:''}
+      ${l.formatted_phone_number?`<button class="btn-act act-copy" onclick="cp(this,'${l.formatted_phone_number}')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button>`:''}
+      <select class="status-select" onchange="mudarStatus('${l.place_id}',this.value,this)">
         <option value="novo" ${st==='novo'?'selected':''}>Novo</option>
         <option value="contatado" ${st==='contatado'?'selected':''}>Contatado</option>
         <option value="fechado" ${st==='fechado'?'selected':''}>Fechado</option>
@@ -435,41 +479,131 @@ function cardHTML(l, st, wl, ab, th, isDup, nota) {
   </div>`;
 }
 
-window.renderHist = function() {
-  const q = (document.getElementById('histSearch').value || '').toLowerCase();
-  let all = globalLeads;
-  if(q) all = all.filter(l => (l.name||'').toLowerCase().includes(q) || (l.formatted_phone_number||'').includes(q) || (l.formatted_address||'').toLowerCase().includes(q));
-  if(statusFilter !== 'all') all = all.filter(l => l._status === statusFilter);
+function mudarStatus(pid,val,sel){
+  updateLead(pid,{_status:val});
+  const card=document.getElementById('card-'+pid);
+  if(card){
+    card.className=card.className.replace(/status-\w+/,'status-'+val);
+    const badge=card.querySelector('.b-novo,.b-contatado,.b-fechado,.b-descartado');
+    if(badge){badge.className='b b-'+val;badge.textContent=val.charAt(0).toUpperCase()+val.slice(1);}
+  }
+  if(currentTab==='hist')renderHist();
+}
 
-  const stats = {
-      novo: globalLeads.filter(l=>l._status==='novo').length,
-      contatado: globalLeads.filter(l=>l._status==='contatado').length,
-      fechado: globalLeads.filter(l=>l._status==='fechado').length,
-      descartado: globalLeads.filter(l=>l._status==='descartado').length
-  };
+function renderHist(){
+  const q=(document.getElementById('histSearch').value||'').toLowerCase();
+  let all=getAll();
   
-  document.getElementById('hist-summary').innerHTML = `
+  // 1. Filtramos por texto ou status primeiro
+  if(q)all=all.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.formatted_phone_number||'').includes(q)||(l.formatted_address||'').toLowerCase().includes(q));
+  if(statusFilter!=='all')all=all.filter(l=>l._status===statusFilter);
+
+  const total=getAll();
+  const stats={novo:total.filter(l=>l._status==='novo').length,contatado:total.filter(l=>l._status==='contatado').length,fechado:total.filter(l=>l._status==='fechado').length,descartado:total.filter(l=>l._status==='descartado').length};
+  document.getElementById('hist-summary').innerHTML=`
   <div class="summary">
-    <div class="stat"><div class="stat-n">${globalLeads.length}</div><div class="stat-l">total</div></div>
+    <div class="stat"><div class="stat-n">${total.length}</div><div class="stat-l">total salvos</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--muted)">${stats.novo}</div><div class="stat-l">novos</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--amber)">${stats.contatado}</div><div class="stat-l">contatados</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--green)">${stats.fechado}</div><div class="stat-l">fechados</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--red)">${stats.descartado}</div><div class="stat-l">descartados</div></div>
   </div>`;
 
-  let h = '';
+  document.getElementById('hist-count').textContent=all.length+' lead'+(all.length!==1?'s':'')+(statusFilter!=='all'?' ('+statusFilter+')':'');
+
+  // 2. Agrupamos os leads filtrados
+  const grupos = {};
   for(const l of all) {
-    const wl = window.wa(l.formatted_phone_number, l.name);
-    h += cardHTML(l, l._status || 'novo', wl, l.opening_hours?.open_now, l.opening_hours !== undefined, false, l._note || '');
+    const nomeGrupo = (l._segmento && l._cidade) ? `${l._segmento} — ${l._cidade}`.toUpperCase() : 'BUSCAS ANTIGAS / GERAL';
+    if(!grupos[nomeGrupo]) grupos[nomeGrupo] = [];
+    grupos[nomeGrupo].push(l);
   }
-  if(!all.length) h = `<div class="empty">Nenhum lead encontrado no CRM.</div>`;
-  document.getElementById('hist-list').innerHTML = h;
+
+  // 3. Renderizamos em formato de Acordeão (Sanfonado)
+  let h='';
+  const nomesDosGrupos = Object.keys(grupos);
+
+  if(nomesDosGrupos.length === 0){
+    h=`<div class="empty">${q||statusFilter!=='all'?'Nenhum lead corresponde à busca.':'Nenhum lead salvo ainda. Faça uma busca!'}</div>`;
+  } else {
+    for(const nome of nomesDosGrupos) {
+      const leadsDoGrupo = grupos[nome];
+      
+      // Criamos a estrutura HTML "details" e "summary"
+      h += `
+      <details class="group">
+        <summary>
+          <div class="group-title">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            ${nome}
+          </div>
+          <div class="g-count">${leadsDoGrupo.length} leads</div>
+        </summary>
+        <div class="group-content">
+      `;
+      
+      // Colocamos os cards dentro do grupo
+      for(const l of leadsDoGrupo){
+        const wl=wa(l.formatted_phone_number);
+        const ab=l.opening_hours?.open_now;
+        const th=l.opening_hours!==undefined;
+        h+=cardHTML(l,l._status||'novo',wl,ab,th,false);
+      }
+      
+      h += `</div></details>`;
+    }
+  }
+  
+  document.getElementById('hist-list').innerHTML=h;
 }
 
-// Verifica se já estava logado na sessão ao carregar
-if(userRole) {
-    iniciarApp();
+function cp(btn,tel){
+  navigator.clipboard.writeText(tel).then(()=>{
+    btn.classList.add('ok');
+    const old=btn.innerHTML;
+    btn.innerHTML=btn.innerHTML.replace('Copiar','Copiado!');
+    setTimeout(()=>{btn.innerHTML=old;btn.classList.remove('ok');},2000);
+  });
 }
+
+function getFiltered(){
+  const q=(document.getElementById('histSearch')?.value||'').toLowerCase();
+  let all=getAll();
+  if(q)all=all.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.formatted_phone_number||'').includes(q)||(l.formatted_address||'').toLowerCase().includes(q));
+  if(currentTab==='hist'&&statusFilter!=='all')all=all.filter(l=>l._status===statusFilter);
+  return all;
+}
+
+function expCSV(){
+  const data=currentTab==='hist'?getFiltered():searchResults;
+  const saved=getAll();
+  const cols=['Nome','Telefone','Endereço','Avaliação','Reviews','Site','Aberto','Status','Anotação','Link WhatsApp'];
+  const rows=data.map(l=>{
+    const s=saved.find(x=>x.place_id===l.place_id)||{};
+    return[l.name||'',l.formatted_phone_number||'',l.formatted_address||'',l.rating||'',l.user_ratings_total||'',l.website||'',l.opening_hours?(l.opening_hours.open_now?'Sim':'Não'):'',s._status||'novo',s._note||'',wa(l.formatted_phone_number)||''];
+  });
+  const csv=[cols,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'})),download:'leads.csv'});
+  a.click();
+}
+
+function expWA(){
+  const data=currentTab==='hist'?getFiltered():searchResults;
+  const c=data.filter(l=>l.formatted_phone_number);
+  if(!c.length){alert('Nenhum lead com telefone.');return;}
+  const txt=c.map(l=>`*${l.name}*\n${l.formatted_phone_number}${l.formatted_address?' — '+l.formatted_address:''}\n${wa(l.formatted_phone_number)}`).join('\n\n');
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'})),download:'lista-whatsapp.txt'});
+  a.click();
+}
+
+function limparTudo(){
+  if(!confirm('Apagar TODO o histórico de leads? Esta ação não pode ser desfeita.'))return;
+  localStorage.removeItem(STORE);
+  updateBadge();
+  renderHist();
+}
+
+updateBadge();
 </script>
 </body>
 </html>
