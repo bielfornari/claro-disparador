@@ -14,22 +14,31 @@
   --accent:#7c5cfc;--accent2:#b4a0fd;
   --green:#22c55e;--green-bg:rgba(34,197,94,0.12);
   --red:#f87171;--red-bg:rgba(248,113,113,0.12);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.12);
   --wa:#25d366;--wa-bg:rgba(37,211,102,0.1);
   --r:14px;--rs:9px;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2.5rem 1rem 5rem}
-.wrap{max-width:820px;margin:0 auto}
+.wrap{max-width:860px;margin:0 auto}
 
-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:2.5rem}
+header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:2rem}
 .logo{display:flex;align-items:center;gap:11px}
 .logo-icon{width:40px;height:40px;background:var(--accent);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo-icon svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.logo h1{font-family:'Syne',sans-serif;font-size:21px;font-weight:700;letter-spacing:-0.3px}
+.logo h1{font-family:'Syne',sans-serif;font-size:21px;font-weight:700;letter-spacing:-.3px}
 .logo p{font-size:12px;color:var(--muted);margin-top:1px}
-.badge-credit{font-size:12px;color:var(--accent2);background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,0.22);padding:6px 13px;border-radius:99px}
+.hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge-pill{font-size:12px;padding:6px 13px;border-radius:99px;border:1px solid}
+.badge-credit{color:var(--accent2);background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.22)}
+.badge-total{color:var(--muted);background:var(--surface);border-color:var(--border);cursor:pointer;transition:border-color .15s}
+.badge-total:hover{border-color:var(--border2)}
+
+.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:1.25rem}
+.tab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:500;border-radius:10px;cursor:pointer;color:var(--muted);transition:all .15s;border:none;background:transparent;font-family:'DM Sans',sans-serif}
+.tab.on{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;margin-bottom:1.25rem}
-.panel-label{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:1.25rem;font-weight:500}
+.panel-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:1.25rem;font-weight:500}
 
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .field{display:flex;flex-direction:column;gap:6px}
@@ -43,7 +52,7 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
 .chip{display:flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--border);border-radius:99px;font-size:13px;color:var(--muted);cursor:pointer;background:var(--surface2);transition:all .15s;user-select:none}
 .chip input{display:none}
-.chip.on{border-color:var(--accent);color:var(--accent2);background:rgba(124,92,252,0.1)}
+.chip.on{border-color:var(--accent);color:var(--accent2);background:rgba(124,92,252,.1)}
 .chip svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 .btn-search{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-family:'Syne',sans-serif;font-weight:600;cursor:pointer;margin-top:1.25rem;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -57,9 +66,9 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .prog{height:2px;background:var(--border);border-radius:99px;margin-top:10px;overflow:hidden}
 .prog-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s;width:0%}
 
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:1rem;text-align:center}
-.stat-n{font-family:'Syne',sans-serif;font-size:24px;font-weight:700}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1.25rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:.9rem;text-align:center}
+.stat-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
 .stat-l{font-size:11px;color:var(--muted);margin-top:3px}
 
 .rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
@@ -70,16 +79,34 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .btn-sm svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .btn-wa-all{border-color:rgba(37,211,102,.25);color:var(--wa)}
 .btn-wa-all:hover{background:var(--wa-bg)}
+.btn-danger{border-color:rgba(248,113,113,.25);color:var(--red)}
+.btn-danger:hover{background:var(--red-bg)}
+
+.status-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.sf{padding:6px 12px;border:1px solid var(--border);border-radius:99px;font-size:12px;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .15s;font-family:'DM Sans',sans-serif}
+.sf.on{font-weight:500}
+.sf-all.on{border-color:var(--accent2);color:var(--accent2);background:rgba(124,92,252,.1)}
+.sf-novo.on{border-color:var(--muted);color:var(--text);background:var(--surface2)}
+.sf-contatado.on{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
+.sf-fechado.on{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.sf-descartado.on{border-color:var(--red);color:var(--red);background:var(--red-bg)}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:10px;transition:border-color .15s}
 .card:hover{border-color:var(--border2)}
+.card.status-contatado{border-left:3px solid var(--amber)}
+.card.status-fechado{border-left:3px solid var(--green)}
+.card.status-descartado{border-left:3px solid var(--red);opacity:.6}
 .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
-.card-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;line-height:1.3}
-.badges{display:flex;gap:6px;flex-wrap:wrap}
-.b{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:500;white-space:nowrap}
-.b-open{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,.2)}
-.b-closed{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.2)}
-.b-notel{background:rgba(138,138,154,.1);color:var(--muted);border:1px solid var(--border)}
+.card-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;line-height:1.3}
+.card-right{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.b{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:500;white-space:nowrap;border:1px solid transparent}
+.b-open{background:var(--green-bg);color:var(--green);border-color:rgba(34,197,94,.2)}
+.b-closed{background:var(--red-bg);color:var(--red);border-color:rgba(248,113,113,.2)}
+.b-novo{background:var(--surface2);color:var(--muted);border-color:var(--border)}
+.b-contatado{background:var(--amber-bg);color:var(--amber);border-color:rgba(245,158,11,.2)}
+.b-fechado{background:var(--green-bg);color:var(--green);border-color:rgba(34,197,94,.2)}
+.b-descartado{background:var(--red-bg);color:var(--red);border-color:rgba(248,113,113,.2)}
+.b-dup{background:rgba(124,92,252,.1);color:var(--accent2);border-color:rgba(124,92,252,.2)}
 
 .rows{display:grid;gap:8px}
 .row{display:flex;align-items:flex-start;gap:10px}
@@ -90,18 +117,31 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 .row-val{font-size:14px;color:var(--text);line-height:1.4}
 .row-val.phone{font-size:16px;font-family:'Syne',sans-serif;font-weight:600;color:var(--accent2)}
 .row-val.notel{color:var(--muted);font-style:italic;font-size:13px}
-.stars{color:#f59e0b}
+.stars{color:var(--amber)}
 
-.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.btn-act{padding:8px 14px;border-radius:var(--rs);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;border:none;transition:opacity .15s;font-weight:500;text-decoration:none}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.btn-act{padding:7px 13px;border-radius:var(--rs);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;border:none;transition:opacity .15s;font-weight:500;text-decoration:none}
 .btn-act:hover{opacity:.82}
 .btn-act svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .act-wa{background:var(--wa-bg);color:var(--wa);border:1px solid rgba(37,211,102,.2)}
 .act-copy{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
 .act-copy.ok{color:var(--green)}
 
+.status-select{margin-left:auto;padding:7px 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface2);color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;outline:none}
+.status-select option{background:#1e1e23}
+
+.note-row{margin-top:8px}
+.note-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;resize:none;transition:border-color .15s}
+.note-input:focus{border-color:var(--accent)}
+.note-input::placeholder{color:var(--muted)}
+
+.hist-search{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;width:100%;margin-bottom:1rem;transition:border-color .15s}
+.hist-search:focus{border-color:var(--accent)}
+.hist-search::placeholder{color:var(--muted)}
+
 .empty{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
-@media(max-width:540px){.form-grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.stat-n{font-size:20px}}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}.summary{grid-template-columns:repeat(3,1fr)}.stat-n{font-size:18px}}
+@media(max-width:380px){.summary{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -114,85 +154,167 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
     </div>
     <div>
       <h1>LeadHunter</h1>
-      <p>Buscador de leads via Google Places</p>
+      <p>Buscador de leads — histórico persistente</p>
     </div>
   </div>
-  <div class="badge-credit">~540 buscas grátis/mês</div>
+  <div class="hdr-right">
+    <div class="badge-pill badge-credit">~540 buscas grátis/mês</div>
+    <div class="badge-pill badge-total" id="badgeTotal" onclick="irParaHistorico()">0 leads salvos</div>
+  </div>
 </header>
 
-<div class="panel">
-  <div class="panel-label">Parâmetros de busca</div>
-  <div class="form-grid">
-    <div class="field">
-      <label>Segmento</label>
-      <input type="text" id="segmento" placeholder="ex: dentista, academia, padaria"/>
-    </div>
-    <div class="field">
-      <label>Cidade / região</label>
-      <input type="text" id="cidade" placeholder="ex: Palmas TO"/>
-    </div>
-    <div class="field">
-      <label>Quantidade</label>
-      <select id="qtd">
-        <option value="5">5 leads</option>
-        <option value="10" selected>10 leads</option>
-        <option value="20">20 leads</option>
-        <option value="60">Máximo (~60)</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Avaliação mínima</label>
-      <select id="minRating">
-        <option value="0">Qualquer avaliação</option>
-        <option value="3">3+ estrelas</option>
-        <option value="4">4+ estrelas</option>
-        <option value="4.5">4.5+ estrelas</option>
-      </select>
-    </div>
-    <div class="field full">
-      <label>Filtros rápidos</label>
-      <div class="chips">
-        <label class="chip" id="c1">
-          <input type="checkbox" id="f-tel"/>
-          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg>
-          Apenas com telefone
-        </label>
-        <label class="chip" id="c2">
-          <input type="checkbox" id="f-open"/>
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Apenas abertos agora
-        </label>
-        <label class="chip" id="c3">
-          <input type="checkbox" id="f-site"/>
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          Sem site (oportunidade!)
-        </label>
+<div class="tabs">
+  <button class="tab on" id="tab-busca" onclick="setTab('busca')">Buscar leads</button>
+  <button class="tab" id="tab-hist" onclick="setTab('hist')">Histórico & CRM</button>
+</div>
+
+<div id="pane-busca">
+  <div class="panel">
+    <div class="panel-label">Parâmetros de busca</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Segmento</label>
+        <input type="text" id="segmento" placeholder="ex: dentista, academia, padaria"/>
+      </div>
+      <div class="field">
+        <label>Cidade / região</label>
+        <input type="text" id="cidade" placeholder="ex: Palmas TO"/>
+      </div>
+      <div class="field">
+        <label>Quantidade</label>
+        <select id="qtd">
+          <option value="5">5 leads</option>
+          <option value="10" selected>10 leads</option>
+          <option value="20">20 leads</option>
+          <option value="60">Máximo (~60)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Avaliação mínima</label>
+        <select id="minRating">
+          <option value="0">Qualquer avaliação</option>
+          <option value="3">3+ estrelas</option>
+          <option value="4">4+ estrelas</option>
+          <option value="4.5">4.5+ estrelas</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label>Filtros rápidos</label>
+        <div class="chips">
+          <label class="chip" id="c1"><input type="checkbox" id="f-tel"/>
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg>
+            Apenas com telefone
+          </label>
+          <label class="chip" id="c2"><input type="checkbox" id="f-open"/>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Apenas abertos agora
+          </label>
+          <label class="chip" id="c3"><input type="checkbox" id="f-site"/>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Sem site (oportunidade!)
+          </label>
+        </div>
       </div>
     </div>
+    <button class="btn-search" id="btnB" onclick="buscar()">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Buscar leads
+    </button>
   </div>
-  <button class="btn-search" id="btnB" onclick="buscar()">
-    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    Buscar leads
-  </button>
+
+  <div class="status-wrap" id="sw">
+    <div class="status-txt" id="st">Buscando...</div>
+    <div class="prog"><div class="prog-fill" id="pf"></div></div>
+  </div>
+
+  <div id="res"></div>
 </div>
 
-<div class="status-wrap" id="sw">
-  <div class="status-txt" id="st">Buscando...</div>
-  <div class="prog"><div class="prog-fill" id="pf"></div></div>
+<div id="pane-hist" style="display:none">
+  <input class="hist-search" id="histSearch" placeholder="Buscar por nome, telefone, cidade..." oninput="renderHist()"/>
+  <div class="status-filter">
+    <button class="sf sf-all on" data-s="all" onclick="setStatusFilter('all')">Todos</button>
+    <button class="sf sf-novo" data-s="novo" onclick="setStatusFilter('novo')">Novos</button>
+    <button class="sf sf-contatado" data-s="contatado" onclick="setStatusFilter('contatado')">Contatados</button>
+    <button class="sf sf-fechado" data-s="fechado" onclick="setStatusFilter('fechado')">Fechados</button>
+    <button class="sf sf-descartado" data-s="descartado" onclick="setStatusFilter('descartado')">Descartados</button>
+  </div>
+  <div id="hist-summary" style="margin-bottom:1rem"></div>
+  <div class="rh">
+    <div class="rh-title" id="hist-count">0 leads</div>
+    <div class="rh-acts">
+      <button class="btn-sm btn-wa-all" onclick="expWA()">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Lista WhatsApp
+      </button>
+      <button class="btn-sm" onclick="expCSV()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar CSV
+      </button>
+      <button class="btn-sm btn-danger" onclick="limparTudo()">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        Limpar tudo
+      </button>
+    </div>
+  </div>
+  <div id="hist-list"></div>
 </div>
-
-<div id="res"></div>
 
 </div>
 <script>
 const P='';
-let all=[],filt=[];
+const STORE='lh_leads_v2';
+let currentTab='busca';
+let statusFilter='all';
+let searchResults=[];
+
+function getAll(){try{return JSON.parse(localStorage.getItem(STORE)||'[]');}catch{return[];}}
+function saveAll(arr){localStorage.setItem(STORE,JSON.stringify(arr));}
+
+function upsertLead(lead){
+  const all=getAll();
+  const idx=all.findIndex(l=>l.place_id===lead.place_id);
+  if(idx===-1){
+    all.unshift({...lead,_status:'novo',_note:'',_savedAt:Date.now(),_isNew:true});
+  }
+  saveAll(all);
+  updateBadge();
+  return idx===-1;
+}
+
+function updateLead(place_id,fields){
+  const all=getAll();
+  const idx=all.findIndex(l=>l.place_id===place_id);
+  if(idx!==-1){Object.assign(all[idx],fields);saveAll(all);}
+}
+
+function updateBadge(){
+  const n=getAll().length;
+  document.getElementById('badgeTotal').textContent=n+' lead'+(n!==1?'s':'')+' salvos';
+}
+
+function setTab(t){
+  currentTab=t;
+  document.getElementById('pane-busca').style.display=t==='busca'?'block':'none';
+  document.getElementById('pane-hist').style.display=t==='hist'?'block':'none';
+  document.getElementById('tab-busca').classList.toggle('on',t==='busca');
+  document.getElementById('tab-hist').classList.toggle('on',t==='hist');
+  if(t==='hist')renderHist();
+}
+
+function irParaHistorico(){setTab('hist');}
+
+function setStatusFilter(s){
+  statusFilter=s;
+  document.querySelectorAll('.sf').forEach(el=>el.classList.toggle('on',el.dataset.s===s));
+  renderHist();
+}
 
 ['c1','c2','c3'].forEach(id=>{
   const chip=document.getElementById(id);
   chip.querySelector('input').addEventListener('change',()=>{
     chip.classList.toggle('on',chip.querySelector('input').checked);
-    aplicar();
+    applyFilters();
   });
 });
 
@@ -208,7 +330,6 @@ function wa(raw){
   const d=raw.replace(/\D/g,'');
   return'https://wa.me/'+(d.startsWith('55')?d:'55'+d);
 }
-
 function stars(r){return r?'★'.repeat(Math.round(r))+'☆'.repeat(5-Math.round(r)):'';}
 
 async function buscar(){
@@ -217,74 +338,75 @@ async function buscar(){
   const qtd=parseInt(document.getElementById('qtd').value);
   if(!seg||!cid){alert('Preencha segmento e cidade.');return;}
   const btn=document.getElementById('btnB');
-  btn.disabled=true;all=[];filt=[];
+  btn.disabled=true;searchResults=[];
   document.getElementById('res').innerHTML='';
   setStatus('Buscando no Google Maps...',10);
   try{
     const q=`${seg} em ${cid}`;
-    let tok=null,pg=0,max=qtd<=20?2:3;
-    while(all.length<qtd&&pg<max){
+    let tok=null,pg=0,max=qtd<=20?2:3,raw=[];
+    while(raw.length<qtd&&pg<max){
       if(tok)await new Promise(r=>setTimeout(r,2200));
       let url=`${P}/api/search?query=${encodeURIComponent(q)}`;
       if(tok)url+=`&pagetoken=${encodeURIComponent(tok)}`;
       const d=await fetch(url).then(r=>r.json());
       if(d.status==='ZERO_RESULTS')break;
       if(d.error_message)throw new Error(d.error_message);
-      for(const r of(d.results||[])){if(all.length>=qtd)break;all.push(r);}
+      for(const r of(d.results||[])){if(raw.length>=qtd)break;raw.push(r);}
       tok=d.next_page_token||null;if(!tok)break;pg++;
     }
-    if(!all.length){setStatus('Nenhum resultado.',0);btn.disabled=false;return;}
+    if(!raw.length){setStatus('Nenhum resultado.',0);btn.disabled=false;return;}
     const det=[];
-    for(let i=0;i<all.length;i++){
-      setStatus(`Carregando detalhes: ${i+1}/${all.length}...`,10+Math.round(i/all.length*85));
-      const d=await fetch(`${P}/api/details?place_id=${encodeURIComponent(all[i].place_id)}`).then(r=>r.json());
-      det.push({...all[i],...(d.result||{})});
+    for(let i=0;i<raw.length;i++){
+      setStatus(`Carregando detalhes: ${i+1}/${raw.length}...`,10+Math.round(i/raw.length*85));
+      const d=await fetch(`${P}/api/details?place_id=${encodeURIComponent(raw[i].place_id)}`).then(r=>r.json());
+      const lead={...raw[i],...(d.result||{})};
+      const isNew=upsertLead(lead);
+      det.push({...lead,_isNew:isNew});
       await new Promise(r=>setTimeout(r,80));
     }
-    all=det;setStatus('',100,true);aplicar();
+    searchResults=det;
+    setStatus('',100,true);
+    applyFilters();
   }catch(e){setStatus('Erro: '+e.message,0);}
   btn.disabled=false;
 }
 
-function aplicar(){
+function applyFilters(){
   const ft=document.getElementById('f-tel').checked;
   const fo=document.getElementById('f-open').checked;
   const fs=document.getElementById('f-site').checked;
   const mr=parseFloat(document.getElementById('minRating').value)||0;
-  filt=all.filter(l=>{
+  const filt=searchResults.filter(l=>{
     if(ft&&!l.formatted_phone_number)return false;
     if(fo&&!l.opening_hours?.open_now)return false;
     if(fs&&l.website)return false;
     if(mr&&(l.rating||0)<mr)return false;
     return true;
   });
-  render();
+  renderSearch(filt,searchResults.length);
 }
 
-function render(){
-  if(!all.length)return;
+function renderSearch(filt,total){
   const ct=filt.filter(l=>l.formatted_phone_number).length;
   const rs=filt.filter(l=>l.rating);
   const med=rs.length?(rs.reduce((a,b)=>a+b.rating,0)/rs.length).toFixed(1):'—';
-  const ss=filt.filter(l=>!l.website).length;
+  const novos=filt.filter(l=>l._isNew).length;
+  const dups=filt.length-novos;
 
   let h=`
   <div class="summary">
-    <div class="stat"><div class="stat-n">${filt.length}</div><div class="stat-l">leads encontrados</div></div>
+    <div class="stat"><div class="stat-n">${filt.length}</div><div class="stat-l">encontrados</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--green)">${novos}</div><div class="stat-l">novos leads</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--accent2)">${dups}</div><div class="stat-l">já no histórico</div></div>
     <div class="stat"><div class="stat-n">${ct}</div><div class="stat-l">com telefone</div></div>
     <div class="stat"><div class="stat-n">${med}</div><div class="stat-l">avaliação média</div></div>
-    <div class="stat"><div class="stat-n">${ss}</div><div class="stat-l">sem site</div></div>
   </div>
   <div class="rh">
-    <div class="rh-title">${filt.length} leads${filt.length!==all.length?' (de '+all.length+')':''}</div>
+    <div class="rh-title">${filt.length} leads${filt.length!==total?' (filtrados de '+total+')':''}</div>
     <div class="rh-acts">
-      <button class="btn-sm btn-wa-all" onclick="expWA()">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Lista WhatsApp
-      </button>
-      <button class="btn-sm" onclick="expCSV()">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exportar CSV
+      <button class="btn-sm" onclick="setTab('hist')">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+        Ver histórico completo
       </button>
     </div>
   </div>`;
@@ -293,58 +415,138 @@ function render(){
     const ab=l.opening_hours?.open_now;
     const th=l.opening_hours!==undefined;
     const wl=wa(l.formatted_phone_number);
-    h+=`
-    <div class="card">
-      <div class="card-top">
-        <div class="card-name">${l.name||'—'}</div>
-        <div class="badges">
-          ${th?`<span class="b ${ab?'b-open':'b-closed'}">${ab?'Aberto':'Fechado'}</span>`:''}
-          ${!l.formatted_phone_number?'<span class="b b-notel">sem telefone</span>':''}
-        </div>
-      </div>
-      <div class="rows">
-        <div class="row">
-          <div class="row-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg></div>
-          <div class="row-body"><span class="row-label">Telefone</span><span class="row-val ${l.formatted_phone_number?'phone':'notel'}">${l.formatted_phone_number||'não disponível'}</span></div>
-        </div>
-        ${l.formatted_address?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="row-body"><span class="row-label">Endereço</span><span class="row-val">${l.formatted_address}</span></div></div>`:''}
-        ${l.rating?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="row-body"><span class="row-label">Avaliação</span><span class="row-val"><span class="stars">${stars(l.rating)}</span> ${l.rating.toFixed(1)} <span style="color:var(--muted);font-size:12px">(${l.user_ratings_total||0} reviews)</span></span></div></div>`:''}
-        ${l.website?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="row-body"><span class="row-label">Site</span><span class="row-val"><a href="${l.website}" target="_blank" style="color:var(--accent2);text-decoration:none">${l.website.replace(/^https?:\/\/(www\.)?/,'').substring(0,55)}</a></span></div></div>`:''}
-      </div>
-      <div class="actions">
-        ${wl?`<a href="${wl}" target="_blank" class="btn-act act-wa"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Abrir WhatsApp</a>`:''}
-        ${l.formatted_phone_number?`<button class="btn-act act-copy" onclick="cp(this,'${l.formatted_phone_number}')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar número</button>`:''}
-      </div>
-    </div>`;
+    const saved=getAll().find(x=>x.place_id===l.place_id);
+    const st=saved?._status||'novo';
+    h+=cardHTML(l,st,wl,ab,th,!l._isNew);
   }
   if(!filt.length)h+=`<div class="empty">Nenhum lead corresponde aos filtros aplicados.</div>`;
   document.getElementById('res').innerHTML=h;
+}
+
+function cardHTML(l,st,wl,ab,th,isDup){
+  return`
+  <div class="card status-${st}" id="card-${l.place_id}">
+    <div class="card-top">
+      <div class="card-name">${l.name||'—'}</div>
+      <div class="card-right">
+        ${isDup?'<span class="b b-dup">já salvo</span>':''}
+        ${th?`<span class="b ${ab?'b-open':'b-closed'}">${ab?'Aberto':'Fechado'}</span>`:''}
+        <span class="b b-${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row">
+        <div class="row-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg></div>
+        <div class="row-body"><span class="row-label">Telefone</span><span class="row-val ${l.formatted_phone_number?'phone':'notel'}">${l.formatted_phone_number||'não disponível'}</span></div>
+      </div>
+      ${l.formatted_address?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="row-body"><span class="row-label">Endereço</span><span class="row-val">${l.formatted_address}</span></div></div>`:''}
+      ${l.rating?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="row-body"><span class="row-label">Avaliação</span><span class="row-val"><span class="stars">${stars(l.rating)}</span> ${l.rating.toFixed(1)} <span style="color:var(--muted);font-size:12px">(${l.user_ratings_total||0} reviews)</span></span></div></div>`:''}
+      ${l.website?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="row-body"><span class="row-label">Site</span><span class="row-val"><a href="${l.website}" target="_blank" style="color:var(--accent2);text-decoration:none">${l.website.replace(/^https?:\/\/(www\.)?/,'').substring(0,55)}</a></span></div></div>`:''}
+    </div>
+    <div class="note-row">
+      <textarea class="note-input" rows="1" placeholder="Anotação sobre este lead..." onchange="updateLead('${l.place_id}',{_note:this.value})">${(getAll().find(x=>x.place_id===l.place_id)||{})._note||''}</textarea>
+    </div>
+    <div class="actions">
+      ${wl?`<a href="${wl}" target="_blank" class="btn-act act-wa"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>WhatsApp</a>`:''}
+      ${l.formatted_phone_number?`<button class="btn-act act-copy" onclick="cp(this,'${l.formatted_phone_number}')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button>`:''}
+      <select class="status-select" onchange="mudarStatus('${l.place_id}',this.value,this)">
+        <option value="novo" ${st==='novo'?'selected':''}>Novo</option>
+        <option value="contatado" ${st==='contatado'?'selected':''}>Contatado</option>
+        <option value="fechado" ${st==='fechado'?'selected':''}>Fechado</option>
+        <option value="descartado" ${st==='descartado'?'selected':''}>Descartado</option>
+      </select>
+    </div>
+  </div>`;
+}
+
+function mudarStatus(pid,val,sel){
+  updateLead(pid,{_status:val});
+  const card=document.getElementById('card-'+pid);
+  if(card){
+    card.className=card.className.replace(/status-\w+/,'status-'+val);
+    const badge=card.querySelector('.b-novo,.b-contatado,.b-fechado,.b-descartado');
+    if(badge){badge.className='b b-'+val;badge.textContent=val.charAt(0).toUpperCase()+val.slice(1);}
+  }
+  if(currentTab==='hist')renderHist();
+}
+
+function renderHist(){
+  const q=(document.getElementById('histSearch').value||'').toLowerCase();
+  let all=getAll();
+  if(q)all=all.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.formatted_phone_number||'').includes(q)||(l.formatted_address||'').toLowerCase().includes(q));
+  if(statusFilter!=='all')all=all.filter(l=>l._status===statusFilter);
+
+  const total=getAll();
+  const stats={novo:total.filter(l=>l._status==='novo').length,contatado:total.filter(l=>l._status==='contatado').length,fechado:total.filter(l=>l._status==='fechado').length,descartado:total.filter(l=>l._status==='descartado').length};
+  document.getElementById('hist-summary').innerHTML=`
+  <div class="summary">
+    <div class="stat"><div class="stat-n">${total.length}</div><div class="stat-l">total salvos</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--muted)">${stats.novo}</div><div class="stat-l">novos</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--amber)">${stats.contatado}</div><div class="stat-l">contatados</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--green)">${stats.fechado}</div><div class="stat-l">fechados</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--red)">${stats.descartado}</div><div class="stat-l">descartados</div></div>
+  </div>`;
+
+  document.getElementById('hist-count').textContent=all.length+' lead'+(all.length!==1?'s':'')+(statusFilter!=='all'?' ('+statusFilter+')':'');
+
+  let h='';
+  for(const l of all){
+    const wl=wa(l.formatted_phone_number);
+    const ab=l.opening_hours?.open_now;
+    const th=l.opening_hours!==undefined;
+    h+=cardHTML(l,l._status||'novo',wl,ab,th,false);
+  }
+  if(!all.length)h=`<div class="empty">${q||statusFilter!=='all'?'Nenhum lead corresponde à busca.':'Nenhum lead salvo ainda. Faça uma busca!'}</div>`;
+  document.getElementById('hist-list').innerHTML=h;
 }
 
 function cp(btn,tel){
   navigator.clipboard.writeText(tel).then(()=>{
     btn.classList.add('ok');
     const old=btn.innerHTML;
-    btn.innerHTML=btn.innerHTML.replace('Copiar número','Copiado!');
+    btn.innerHTML=btn.innerHTML.replace('Copiar','Copiado!');
     setTimeout(()=>{btn.innerHTML=old;btn.classList.remove('ok');},2000);
   });
 }
 
+function getFiltered(){
+  const q=(document.getElementById('histSearch')?.value||'').toLowerCase();
+  let all=getAll();
+  if(q)all=all.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.formatted_phone_number||'').includes(q)||(l.formatted_address||'').toLowerCase().includes(q));
+  if(currentTab==='hist'&&statusFilter!=='all')all=all.filter(l=>l._status===statusFilter);
+  return all;
+}
+
 function expCSV(){
-  const cols=['Nome','Telefone','Endereço','Avaliação','Reviews','Site','Aberto','Link WhatsApp'];
-  const rows=filt.map(l=>[l.name||'',l.formatted_phone_number||'',l.formatted_address||'',l.rating||'',l.user_ratings_total||'',l.website||'',l.opening_hours?(l.opening_hours.open_now?'Sim':'Não'):'',wa(l.formatted_phone_number)||'']);
+  const data=currentTab==='hist'?getFiltered():searchResults;
+  const saved=getAll();
+  const cols=['Nome','Telefone','Endereço','Avaliação','Reviews','Site','Aberto','Status','Anotação','Link WhatsApp'];
+  const rows=data.map(l=>{
+    const s=saved.find(x=>x.place_id===l.place_id)||{};
+    return[l.name||'',l.formatted_phone_number||'',l.formatted_address||'',l.rating||'',l.user_ratings_total||'',l.website||'',l.opening_hours?(l.opening_hours.open_now?'Sim':'Não'):'',s._status||'novo',s._note||'',wa(l.formatted_phone_number)||''];
+  });
   const csv=[cols,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'})),download:'leads.csv'});
   a.click();
 }
 
 function expWA(){
-  const c=filt.filter(l=>l.formatted_phone_number);
+  const data=currentTab==='hist'?getFiltered():searchResults;
+  const c=data.filter(l=>l.formatted_phone_number);
   if(!c.length){alert('Nenhum lead com telefone.');return;}
   const txt=c.map(l=>`*${l.name}*\n${l.formatted_phone_number}${l.formatted_address?' — '+l.formatted_address:''}\n${wa(l.formatted_phone_number)}`).join('\n\n');
   const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'})),download:'lista-whatsapp.txt'});
   a.click();
 }
+
+function limparTudo(){
+  if(!confirm('Apagar TODO o histórico de leads? Esta ação não pode ser desfeita.'))return;
+  localStorage.removeItem(STORE);
+  updateBadge();
+  renderHist();
+}
+
+updateBadge();
 </script>
 </body>
 </html>
