@@ -335,11 +335,11 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
     <div class="rh-acts">
       <button class="btn-sm btn-wa-all" onclick="expWA()">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Lista WhatsApp
+        Lista WhatsApp Business
       </button>
       <button class="btn-sm" onclick="expCSV()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exportar CSV
+        Exportar CSV completo
       </button>
       <button class="btn-sm btn-danger" onclick="limparTudo()">
         <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
@@ -642,11 +642,11 @@ function renderSearch(filt,total){
     <div class="rh-acts">
       <button class="btn-sm btn-wa-all" onclick="expWA()">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Lista WhatsApp
+        Lista WhatsApp Business
       </button>
       <button class="btn-sm" onclick="expCSV()">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exportar CSV
+        Exportar CSV completo
       </button>
       <button class="btn-sm" onclick="setTab('hist')">
         <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
@@ -792,16 +792,32 @@ function expCSV(){
 }
 
 function expWA(){
+  // Exporta no formato exato do WhatsApp Business (template oficial)
   const data=currentTab==='hist'?getFiltered():searchResults;
   const c=data.filter(l=>l.formatted_phone_number);
   if(!c.length){alert('Nenhum lead com telefone.');return;}
   const saved=getAll();
-  const txt=c.map(l=>{
+
+  // Linha 1: instrução do WhatsApp Business (obrigatória)
+  const header='Insira o nome completo e o telefone de cada destinatário em uma linha separada. Você pode adicionar até 256 destinatários a um público.,';
+  // Linha 2: vazia
+  // Linha 3: colunas
+  const cols='Nome completo,Telefone';
+  // Linha 4: vazia
+  const rows=c.map(l=>{
     const s=saved.find(x=>x.place_id===l.place_id)||{};
-    const cnpj=(l._cnpj||s._cnpj||'').replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5');
-    return`*${l.name}*\n${l.formatted_phone_number}${cnpj?'\nCNPJ: '+cnpj:''}${l.formatted_address?' — '+l.formatted_address:''}\n${wa(l.formatted_phone_number)}`;
-  }).join('\n\n');
-  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'})),download:'lista-whatsapp.txt'});
+    const nome=(l.name||'').replace(/,/g,' ');
+    // Formata telefone: apenas dígitos com +55 na frente
+    const digits=(l.formatted_phone_number||'').replace(/\D/g,'');
+    const tel='+' + (digits.startsWith('55')?digits:'55'+digits);
+    return `${nome},${tel}`;
+  });
+
+  const csv=[header,'',cols,...rows].join('\n');
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'})),
+    download:'whatsapp_business_leads.csv'
+  });
   a.click();
 }
 
