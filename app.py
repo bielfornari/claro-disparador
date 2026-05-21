@@ -81,14 +81,39 @@ def cnpj():
             'User-Agent': 'LeadHunter/1.0'
         })
         data = r.json()
-        # Filtra pelo município se vier lista
         companies = data.get('companies', data if isinstance(data, list) else [])
         if companies:
             match = next(
                 (x for x in companies if cidade in (x.get('municipio', '') or '').upper()),
                 companies[0]
             )
-            return jsonify(match)
+            cnpj_num = (match.get('cnpj') or '').replace('.','').replace('/','').replace('-','')
+
+            # Buscar detalhes completos pelo CNPJ para pegar sócios e razão social
+            responsavel = ''
+            razao = match.get('nome', '')
+            if cnpj_num:
+                try:
+                    det = requests.get(
+                        f'https://receitaws.com.br/v1/cnpj/{cnpj_num}',
+                        timeout=8,
+                        headers={'Accept': 'application/json', 'User-Agent': 'LeadHunter/1.0'}
+                    ).json()
+                    razao = det.get('nome', razao)
+                    socios = det.get('qsa', [])
+                    if socios:
+                        # Pega o primeiro sócio administrador, ou o primeiro da lista
+                        admin = next((s for s in socios if 'ADMINISTRADOR' in (s.get('qual','') or '').upper()), socios[0])
+                        responsavel = admin.get('nome', '')
+                except:
+                    pass
+
+            return jsonify({
+                'cnpj': cnpj_num,
+                'razao': razao,
+                'responsavel': responsavel,
+                'municipio': match.get('municipio', '')
+            })
         return jsonify({})
     except Exception as e:
         return jsonify({'error': str(e)})
