@@ -723,7 +723,7 @@ function cardHTML(l,st,wl,ab,th,isDup){
       ${wl?`<a href="${wl}" target="_blank" class="btn-act act-wa"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>WhatsApp</a>`:''}
       ${l.formatted_phone_number?`<button class="btn-act act-copy" onclick="cp(this,'${telSafe}')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar número</button>`:''}
       ${cnpjFmt?`<button class="btn-act act-cnpj" onclick="cp(this,'${l._cnpj}')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Copiar CNPJ</button>`:''}
-      <button class="btn-act act-script" onclick="abrirScript('${nomeSafe}','${segSafe}','${telSafe}')"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Gerar abordagem</button>
+      <button class="btn-act act-script" onclick="abrirScript('${l.place_id}','${nomeSafe}','${telSafe}')"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Gerar abordagem</button>
       <select class="status-select" onchange="mudarStatus('${l.place_id}',this.value,this)">
         <option value="novo" ${st==='novo'?'selected':''}>Novo</option>
         <option value="contatado" ${st==='contatado'?'selected':''}>Contatado</option>
@@ -843,15 +843,21 @@ function limparTudo(){
 }
 
 // ── Gerador de script de abordagem ────────────────────────────────────────────
-let scriptVariantes=[];
 let scriptTelAtual='';
+let scriptPlaceIdAtual='';
 
-function abrirScript(nome,seg,tel){
+const TEXTO_ABORDAGEM=`GANHAR 1 FATURA NO PIX?
+JÁ IMAGINOU? 🤔💭
+Além de PAGAR MAIS BARATO e melhorar a qualidade do sinal da sua empresa, você ainda leva 1 FATURA TOTALMENTE NO SEU PIX! 💸💰
+🎁 O SEU PRESENTE EXCLUSIVO:
+Após 7 dias da instalação concluída, eu envio o valor de 01 FATURA INTEGRAL direto para a sua chave PIX! 🚀`;
+
+function abrirScript(placeId,nome,tel){
   scriptTelAtual=tel;
-  document.getElementById('modalEmpresa').textContent=nome+(seg?` — ${seg}`:'')+(tel?`  |  ${tel}`:'');
-  document.getElementById('modalBody').innerHTML='<div class="script-loading">Gerando scripts com IA...</div>';
+  scriptPlaceIdAtual=placeId;
+  document.getElementById('modalEmpresa').textContent=nome+(tel?`  |  ${tel}`:'');
+  renderModal();
   document.getElementById('modalOverlay').classList.add('open');
-  gerarScripts(nome,seg);
 }
 
 function fecharModal(e){
@@ -859,73 +865,49 @@ function fecharModal(e){
     document.getElementById('modalOverlay').classList.remove('open');
 }
 
-async function gerarScripts(nome,seg){
-  const prompt=`Você é especialista em prospecção B2B por WhatsApp no Brasil.
+function renderModal(){
+  const num=(scriptTelAtual||'').replace(/\D/g,'');
+  const n55=num.startsWith('55')?num:'55'+num;
+  const waLink=num?`https://wa.me/${n55}?text=${encodeURIComponent(TEXTO_ABORDAGEM)}`:'';
 
-Contexto:
-- Vendedor: representante comercial da Claro
-- Produto: planos de internet Wi-Fi empresarial e planos de celular corporativo da Claro para CNPJ
-- Empresa alvo: ${nome}${seg?` (${seg})`:''}
-- O número pode ser respondido por atendente ou pelo próprio dono
-
-Gere 3 variações de mensagem WhatsApp curtas e naturais:
-1. "Curiosidade" — desperta curiosidade sem revelar tudo, faz quem ler querer chamar o dono
-2. "Oportunidade" — cria senso de oportunidade real, difícil de ignorar
-3. "Direta" — vai direto ao ponto, pede para falar com o responsável
-
-Regras: máx 4 linhas cada, tom informal mas profissional, sem preço, sem parecer spam, use o nome da empresa, termine com pergunta simples.
-
-Responda SOMENTE JSON válido sem markdown:
-{"v1":{"titulo":"Curiosidade","msg":"..."},"v2":{"titulo":"Oportunidade","msg":"..."},"v3":{"titulo":"Direta","msg":"..."},"horario":"dica curta sobre melhor horário para esse tipo de empresa"}`;
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await res.json();
-    const raw=data.content.map(c=>c.text||'').join('');
-    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    scriptVariantes=[parsed.v1,parsed.v2,parsed.v3];
-    renderModal(parsed.horario);
-  }catch(e){
-    document.getElementById('modalBody').innerHTML=`<div class="script-loading" style="color:var(--red)">Erro ao gerar: ${e.message}</div>`;
-  }
+  document.getElementById('modalBody').innerHTML=`
+    <div style="margin-bottom:10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Mensagem de abordagem</div>
+    <div class="script-content" id="scriptContent" style="white-space:pre-wrap">${TEXTO_ABORDAGEM}</div>
+    <div class="script-horario"><strong>💡 Lembre-se:</strong> anexe a imagem manualmente antes de enviar no WhatsApp.</div>
+    <div class="modal-actions">
+      <button class="btn-act act-copy" onclick="cpScript()">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar mensagem
+      </button>
+      ${waLink?`<a href="${waLink}" target="_blank" class="btn-act act-wa" onclick="marcarContatado()">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Abrir WhatsApp ✓
+      </a>`:''}
+    </div>
+    <div id="contatadoMsg" style="display:none;margin-top:10px;font-size:12px;color:var(--green);text-align:center">✓ Lead marcado como Contatado automaticamente!</div>
+  `;
 }
 
-function renderModal(horario){
-  let h=`<div class="script-tabs">`;
-  scriptVariantes.forEach((v,i)=>{
-    h+=`<button class="stab${i===0?' on':''}" onclick="selecionarScript(${i},this)">${v.titulo}</button>`;
-  });
-  h+=`</div>`;
-  h+=`<div class="script-content" id="scriptContent">${scriptVariantes[0].msg}</div>`;
-  if(horario)h+=`<div class="script-horario"><strong>⏰ Melhor horário:</strong> ${horario}</div>`;
-  h+=`<div class="modal-actions">
-    <button class="btn-act act-copy" onclick="cpScript()"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar mensagem</button>
-    ${scriptTelAtual?`<a href="https://wa.me/${scriptTelAtual.replace(/\D/g,'').replace(/^(?!55)/,'55')}?text=${encodeURIComponent(scriptVariantes[0].msg)}" target="_blank" id="linkWa" class="btn-act act-wa"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Abrir WhatsApp</a>`:''}
-    <button class="btn-act act-script" onclick="gerarScripts('${nome}','${seg}')"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>Gerar novas versões</button>
-  </div>`;
-  document.getElementById('modalBody').innerHTML=h;
-}
-
-function selecionarScript(i,btn){
-  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('scriptContent').textContent=scriptVariantes[i].msg;
-  const linkWa=document.getElementById('linkWa');
-  if(linkWa&&scriptTelAtual){
-    const num=scriptTelAtual.replace(/\D/g,'');
-    const n55=num.startsWith('55')?num:'55'+num;
-    linkWa.href=`https://wa.me/${n55}?text=${encodeURIComponent(scriptVariantes[i].msg)}`;
+function marcarContatado(){
+  if(!scriptPlaceIdAtual)return;
+  updateLead(scriptPlaceIdAtual,{_status:'contatado'});
+  // Atualiza o card na tela sem fechar o modal
+  const card=document.getElementById('card-'+scriptPlaceIdAtual);
+  if(card){
+    card.className=card.className.replace(/status-\w+/,'status-contatado');
+    const badge=card.querySelector('.b-novo,.b-contatado,.b-fechado,.b-descartado');
+    if(badge){badge.className='b b-contatado';badge.textContent='Contatado';}
+    const sel=card.querySelector('.status-select');
+    if(sel)sel.value='contatado';
   }
+  document.getElementById('contatadoMsg').style.display='block';
+  if(currentTab==='hist')renderHist();
 }
 
 function cpScript(){
-  const txt=document.getElementById('scriptContent').textContent;
-  navigator.clipboard.writeText(txt).then(()=>{
+  navigator.clipboard.writeText(TEXTO_ABORDAGEM).then(()=>{
     const btn=document.querySelector('.modal-actions .act-copy');
+    if(!btn)return;
     const old=btn.innerHTML;
     btn.innerHTML=btn.innerHTML.replace('Copiar mensagem','Copiado!');
     setTimeout(()=>btn.innerHTML=old,2000);
