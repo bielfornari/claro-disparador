@@ -598,7 +598,11 @@ async function carregarDetalhes(raw,qtd,cidade,buscarCNPJ){
         setStatus(`CNPJ: buscando "${lead.name}"...`,pct);
         const cidLimpa=cidade.replace(/\s+[A-Z]{2}$/,'').trim();
         const c=await fetch(`${P}/api/cnpj?nome=${encodeURIComponent(lead.name)}&cidade=${encodeURIComponent(cidLimpa)}`).then(r=>r.json());
-        if(c&&c.cnpj)lead._cnpj=c.cnpj;
+        if(c&&c.cnpj){
+          lead._cnpj=c.cnpj;
+          lead._razao=c.razao||'';
+          lead._responsavel=c.responsavel||'';
+        }
       }catch(_){}
     }
 
@@ -684,38 +688,40 @@ function renderSearch(filt,total){
 // ── Card HTML ─────────────────────────────────────────────────────────────────
 function cardHTML(l,st,wl,ab,th,isDup){
   const cnpjFmt=l._cnpj?l._cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5'):'';
-  const cel=isCelular(l.formatted_phone_number);
   const nomeSafe=(l.name||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
   const telSafe=(l.formatted_phone_number||'').replace(/'/g,"\\'");
   const segSafe=(l.types&&l.types[0]?l.types[0].replace(/_/g,' '):'');
+  const saved=getAll().find(x=>x.place_id===l.place_id)||{};
+  const responsavel=saved._responsavel||l._responsavel||'';
+  const razaoSocial=saved._razao||l._razao||'';
+  const temSite=l.website?'Sim — '+l.website.replace(/^https?:\/\/(www\.)?/,'').substring(0,45):'Não';
   return`
   <div class="card status-${st}" id="card-${l.place_id}">
     <div class="card-top">
       <div class="card-name">${l.name||'—'}</div>
       <div class="card-right">
         ${isDup?'<span class="b b-dup">já salvo</span>':''}
-        ${cel?'<span class="b b-cel">celular</span>':''}
         ${cnpjFmt?'<span class="b b-cnpj">CNPJ</span>':''}
-        ${th?`<span class="b ${ab?'b-open':'b-closed'}">${ab?'Aberto':'Fechado'}</span>`:''}
         <span class="b b-${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span>
       </div>
     </div>
     <div class="rows">
       <div class="row">
         <div class="row-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg></div>
-        <div class="row-body"><span class="row-label">Celular</span><span class="row-val ${l.formatted_phone_number?'phone':'notel'}">${l.formatted_phone_number||'não disponível'}</span></div>
+        <div class="row-body"><span class="row-label">Número</span><span class="row-val ${l.formatted_phone_number?'phone':'notel'}">${l.formatted_phone_number||'não disponível'}</span></div>
       </div>
-      ${cnpjFmt?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="row-body"><span class="row-label">CNPJ</span><span class="row-val cnpj-val">${cnpjFmt}</span></div></div>`:''}
-      ${l.formatted_address?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="row-body"><span class="row-label">Endereço</span><span class="row-val">${l.formatted_address}</span></div></div>`:''}
-      ${l.rating?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="row-body"><span class="row-label">Avaliação</span><span class="row-val"><span class="stars">${stars(l.rating)}</span> ${l.rating.toFixed(1)} <span style="color:var(--muted);font-size:12px">(${l.user_ratings_total||0} reviews)</span></span></div></div>`:''}
-      ${l.website?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="row-body"><span class="row-label">Site</span><span class="row-val"><a href="${l.website}" target="_blank" style="color:var(--accent2);text-decoration:none">${l.website.replace(/^https?:\/\/(www\.)?/,'').substring(0,55)}</a></span></div></div>`:''}
+      ${l.formatted_address?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="row-body"><span class="row-label">Endereço completo</span><span class="row-val">${l.formatted_address}</span></div></div>`:''}
+      <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="row-body"><span class="row-label">CNPJ</span><span class="row-val cnpj-val">${cnpjFmt||'—'}</span></div></div>
+      <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div class="row-body"><span class="row-label">Razão social</span><span class="row-val" style="color:var(--muted);font-style:${razaoSocial?'normal':'italic'}">${razaoSocial||'não encontrada'}</span></div></div>
+      <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="row-body"><span class="row-label">Nome do responsável</span><span class="row-val" style="color:var(--muted);font-style:${responsavel?'normal':'italic'}">${responsavel||'não encontrado'}</span></div></div>
+      <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="row-body"><span class="row-label">Site</span><span class="row-val" style="${l.website?'color:var(--accent2)':'color:var(--muted)'}">${temSite}</span></div></div>
     </div>
     <div class="note-row">
-      <textarea class="note-input" rows="1" placeholder="Anotação sobre este lead..." onchange="updateLead('${l.place_id}',{_note:this.value})">${(getAll().find(x=>x.place_id===l.place_id)||{})._note||''}</textarea>
+      <textarea class="note-input" rows="1" placeholder="Anotação sobre este lead..." onchange="updateLead('${l.place_id}',{_note:this.value})">${saved._note||''}</textarea>
     </div>
     <div class="actions">
       ${wl?`<a href="${wl}" target="_blank" class="btn-act act-wa"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>WhatsApp</a>`:''}
-      ${l.formatted_phone_number?`<button class="btn-act act-copy" onclick="cp(this,'${telSafe}')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button>`:''}
+      ${l.formatted_phone_number?`<button class="btn-act act-copy" onclick="cp(this,'${telSafe}')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar número</button>`:''}
       ${cnpjFmt?`<button class="btn-act act-cnpj" onclick="cp(this,'${l._cnpj}')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Copiar CNPJ</button>`:''}
       <button class="btn-act act-script" onclick="abrirScript('${nomeSafe}','${segSafe}','${telSafe}')"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Gerar abordagem</button>
       <select class="status-select" onchange="mudarStatus('${l.place_id}',this.value,this)">
@@ -790,17 +796,28 @@ function getFiltered(){
 }
 
 function expCSV(){
+  // Exporta no formato exato do template oficial do WhatsApp Business
   const data=currentTab==='hist'?getFiltered():searchResults;
+  const c=data.filter(l=>l.formatted_phone_number);
+  if(!c.length){alert('Nenhum lead com telefone para exportar.');return;}
   const saved=getAll();
-  const cols=['Nome','CNPJ','Telefone','Endereço','Avaliação','Reviews','Site','Aberto','Status','Anotação','Link WhatsApp'];
-  const rows=data.map(l=>{
+
+  const header='Insira o nome completo e o telefone de cada destinatário em uma linha separada. Você pode adicionar até 256 destinatários a um público.,';
+  const cols='Nome completo,Telefone';
+
+  const rows=c.map(l=>{
     const s=saved.find(x=>x.place_id===l.place_id)||{};
-    const cnpj=l._cnpj||s._cnpj||'';
-    const cnpjFmt=cnpj?cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5'):'';
-    return[l.name||'',cnpjFmt,l.formatted_phone_number||'',l.formatted_address||'',l.rating||'',l.user_ratings_total||'',l.website||'',l.opening_hours?(l.opening_hours.open_now?'Sim':'Não'):'',s._status||'novo',s._note||'',wa(l.formatted_phone_number)||''];
+    const nome=(l.name||'').replace(/,/g,' ').replace(/"/g,'');
+    const digits=(l.formatted_phone_number||'').replace(/\D/g,'');
+    const tel='+'+(digits.startsWith('55')?digits:'55'+digits);
+    return`${nome},${tel}`;
   });
-  const csv=[cols,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'})),download:'leads.csv'});
+
+  const csv=[header,'',cols,...rows].join('\n');
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'})),
+    download:'whatsapp_business_leads.csv'
+  });
   a.click();
 }
 
