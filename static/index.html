@@ -151,6 +151,25 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 
 .empty{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
 
+/* follow-up urgente */
+.card.followup-urgente{border-left:3px solid var(--red)!important;animation:pulse-border 2s infinite}
+@keyframes pulse-border{0%,100%{border-left-color:var(--red)}50%{border-left-color:rgba(248,113,113,.3)}}
+.followup-tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.2);display:inline-flex;align-items:center;gap:4px}
+
+/* meta diária */
+.meta-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.meta-label{font-size:12px;color:var(--muted);white-space:nowrap}
+.meta-progress{flex:1;min-width:120px;height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.meta-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.meta-num{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;white-space:nowrap}
+.meta-input{width:60px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:4px 8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;text-align:center}
+
+/* taxa de conversão */
+.conv-rate{font-size:12px;color:var(--green);font-weight:600;background:var(--green-bg);border:1px solid rgba(34,197,94,.2);padding:4px 10px;border-radius:99px}
+
+/* dias desde contato */
+.dias-badge{font-size:11px;color:var(--muted);margin-top:4px}
+
 .b-cel{background:rgba(34,197,94,.1);color:var(--green);border-color:rgba(34,197,94,.2)}
 .act-script{background:rgba(124,92,252,.12);color:var(--accent2);border:1px solid rgba(124,92,252,.25)}
 .act-script:hover{opacity:.82}
@@ -321,7 +340,16 @@ header{display:flex;align-items:center;justify-content:space-between;flex-wrap:w
 
 <!-- ═══ HISTÓRICO & CRM ══════════════════════════════════════════════════ -->
 <div id="pane-hist" style="display:none">
-  <input class="hist-search" id="histSearch" placeholder="Buscar por nome, telefone, CNPJ, cidade..." oninput="renderHist()"/>
+  <input class="hist-search" id="histSearch" placeholder="Buscar por nome, telefone, CNPJ, endereço..." oninput="renderHist()"/>
+
+  <!-- Meta diária -->
+  <div class="meta-bar" id="metaBar">
+    <span class="meta-label">Meta diária:</span>
+    <input class="meta-input" type="number" id="metaValor" min="1" max="200" value="20" onchange="salvarMeta(this.value);renderHist()"/>
+    <span class="meta-label">abordagens</span>
+    <div class="meta-progress"><div class="meta-fill" id="metaFill" style="width:0%"></div></div>
+    <span class="meta-num" id="metaNum">0 / 20</span>
+  </div>
   <div class="status-filter">
     <button class="sf sf-all on" data-s="all" onclick="setStatusFilter('all')">Todos</button>
     <button class="sf sf-novo" data-s="novo" onclick="setStatusFilter('novo')">Novos</button>
@@ -686,19 +714,19 @@ function renderSearch(filt,total){
 }
 
 // ── Card HTML ─────────────────────────────────────────────────────────────────
-function cardHTML(l,st,wl,ab,th,isDup){
+function cardHTML(l,st,wl,ab,th,isDup,urgente){
   const cnpjFmt=l._cnpj?l._cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5'):'';
   const nomeSafe=(l.name||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
   const telSafe=(l.formatted_phone_number||'').replace(/'/g,"\\'");
-  const segSafe=(l.types&&l.types[0]?l.types[0].replace(/_/g,' '):'');
   const saved=getAll().find(x=>x.place_id===l.place_id)||{};
   const responsavel=saved._responsavel||l._responsavel||'';
   const razaoSocial=saved._razao||l._razao||'';
   const temSite=l.website?'Sim — '+l.website.replace(/^https?:\/\/(www\.)?/,'').substring(0,45):'Não';
+  const diasLabel=labelDias({...l,...saved});
   return`
-  <div class="card status-${st}" id="card-${l.place_id}">
+  <div class="card status-${st}${urgente?' followup-urgente':''}" id="card-${l.place_id}">
     <div class="card-top">
-      <div class="card-name">${l.name||'—'}</div>
+      <div class="card-name">${l.name||'—'}${diasLabel?'<br>'+diasLabel:''}</div>
       <div class="card-right">
         ${isDup?'<span class="b b-dup">já salvo</span>':''}
         ${cnpjFmt?'<span class="b b-cnpj">CNPJ</span>':''}
@@ -712,8 +740,8 @@ function cardHTML(l,st,wl,ab,th,isDup){
       </div>
       ${l.formatted_address?`<div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="row-body"><span class="row-label">Endereço completo</span><span class="row-val">${l.formatted_address}</span></div></div>`:''}
       <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="row-body"><span class="row-label">CNPJ</span><span class="row-val cnpj-val">${cnpjFmt||'—'}</span></div></div>
-      <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div class="row-body"><span class="row-label">Razão social</span><span class="row-val" style="color:var(--muted);font-style:${razaoSocial?'normal':'italic'}">${razaoSocial||'não encontrada'}</span></div></div>
-      <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="row-body"><span class="row-label">Nome do responsável</span><span class="row-val" style="color:var(--muted);font-style:${responsavel?'normal':'italic'}">${responsavel||'não encontrado'}</span></div></div>
+      <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div class="row-body"><span class="row-label">Razão social</span><span class="row-val" style="color:${razaoSocial?'var(--text)':'var(--muted)'};font-style:${razaoSocial?'normal':'italic'}">${razaoSocial||'não encontrada'}</span></div></div>
+      <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="row-body"><span class="row-label">Nome do responsável</span><span class="row-val" style="color:${responsavel?'var(--text)':'var(--muted)'};font-style:${responsavel?'normal':'italic'}">${responsavel||'não encontrado'}</span></div></div>
       <div class="row"><div class="row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="row-body"><span class="row-label">Site</span><span class="row-val" style="${l.website?'color:var(--accent2)':'color:var(--muted)'}">${temSite}</span></div></div>
     </div>
     <div class="note-row">
@@ -724,10 +752,10 @@ function cardHTML(l,st,wl,ab,th,isDup){
       ${l.formatted_phone_number?`<button class="btn-act act-copy" onclick="cp(this,'${telSafe}')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar número</button>`:''}
       ${cnpjFmt?`<button class="btn-act act-cnpj" onclick="cp(this,'${l._cnpj}')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Copiar CNPJ</button>`:''}
       <button class="btn-act act-script" onclick="abrirScript('${l.place_id}','${nomeSafe}','${telSafe}')"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Gerar abordagem</button>
-      <select class="status-select" onchange="mudarStatus('${l.place_id}',this.value,this)">
+      <select class="status-select" onchange="mudarStatus('${l.place_id}',this.value)">
         <option value="novo" ${st==='novo'?'selected':''}>Novo</option>
         <option value="contatado" ${st==='contatado'?'selected':''}>Contatado</option>
-        <option value="fechado" ${st==='fechado'?'selected':''}>Fechado</option>
+        <option value="fechado" ${st==='fechado'?'selected':''}>Fechado ✓</option>
         <option value="descartado" ${st==='descartado'?'selected':''}>Descartado</option>
       </select>
     </div>
@@ -736,13 +764,15 @@ function cardHTML(l,st,wl,ab,th,isDup){
 
 // ── Histórico ─────────────────────────────────────────────────────────────────
 function mudarStatus(pid,val){
-  updateLead(pid,{_status:val});
+  const extra=val==='contatado'||val==='fechado'?{_contatadoEm:new Date().toISOString()}:{};
+  updateLead(pid,{_status:val,...extra});
   const card=document.getElementById('card-'+pid);
   if(card){
     card.className=card.className.replace(/status-\w+/,'status-'+val);
     const badge=card.querySelector('.b-novo,.b-contatado,.b-fechado,.b-descartado');
-    if(badge){badge.className='b b-'+val;badge.textContent=val.charAt(0).toUpperCase()+val.slice(1);}
+    if(badge){badge.className='b b-'+val;badge.textContent=val==='fechado'?'Fechado ✓':val.charAt(0).toUpperCase()+val.slice(1);}
   }
+  atualizarMeta();
   if(currentTab==='hist')renderHist();
 }
 
@@ -752,17 +782,30 @@ function renderHist(){
   if(q)all=all.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.formatted_phone_number||'').includes(q)||(l.formatted_address||'').toLowerCase().includes(q)||(l._cnpj||'').includes(q));
   if(statusFilter!=='all')all=all.filter(l=>l._status===statusFilter);
 
+  // Ordena: follow-ups urgentes primeiro (contatados há 3+ dias), depois por data desc
+  all.sort((a,b)=>{
+    const urgA=a._status==='contatado'&&diasDesde(a._contatadoEm)>=3?1:0;
+    const urgB=b._status==='contatado'&&diasDesde(b._contatadoEm)>=3?1:0;
+    if(urgB!==urgA)return urgB-urgA;
+    return(b._savedAt||0)-(a._savedAt||0);
+  });
+
   const total=getAll();
   const stats={novo:total.filter(l=>l._status==='novo').length,contatado:total.filter(l=>l._status==='contatado').length,fechado:total.filter(l=>l._status==='fechado').length,descartado:total.filter(l=>l._status==='descartado').length};
+  const followupsUrgentes=total.filter(l=>l._status==='contatado'&&diasDesde(l._contatadoEm)>=3).length;
+  const taxa=taxaConversao();
+
   document.getElementById('hist-summary').innerHTML=`
   <div class="summary">
     <div class="stat"><div class="stat-n">${total.length}</div><div class="stat-l">total salvos</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--muted)">${stats.novo}</div><div class="stat-l">novos</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--amber)">${stats.contatado}</div><div class="stat-l">contatados</div></div>
     <div class="stat"><div class="stat-n" style="color:var(--green)">${stats.fechado}</div><div class="stat-l">fechados</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--red)">${stats.descartado}</div><div class="stat-l">descartados</div></div>
-  </div>`;
+    <div class="stat"><div class="stat-n" style="color:var(--red)">${followupsUrgentes}</div><div class="stat-l">follow-ups urg.</div></div>
+  </div>
+  ${taxa!=='0%'?`<div style="margin-bottom:1rem;display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:var(--muted)">Taxa de conversão:</span><span class="conv-rate">${taxa}</span><span style="font-size:12px;color:var(--muted)">(fechados ÷ contatados)</span></div>`:''}`;
 
+  atualizarMeta();
   document.getElementById('hist-count').textContent=all.length+' lead'+(all.length!==1?'s':'')+(statusFilter!=='all'?' ('+statusFilter+')':'');
 
   let h='';
@@ -770,7 +813,8 @@ function renderHist(){
     const wl=wa(l.formatted_phone_number);
     const ab=l.opening_hours?.open_now;
     const th=l.opening_hours!==undefined;
-    h+=cardHTML(l,l._status||'novo',wl,ab,th,false);
+    const urgente=l._status==='contatado'&&diasDesde(l._contatadoEm)>=3;
+    h+=cardHTML(l,l._status||'novo',wl,ab,th,false,urgente);
   }
   if(!all.length)h=`<div class="empty">${q||statusFilter!=='all'?'Nenhum lead corresponde à busca.':'Nenhum lead salvo ainda. Faça uma busca!'}</div>`;
   document.getElementById('hist-list').innerHTML=h;
@@ -842,13 +886,63 @@ function limparTudo(){
   renderHist();
 }
 
+// ── Meta diária ───────────────────────────────────────────────────────────────
+function salvarMeta(v){localStorage.setItem('lh_meta',v);}
+function getMeta(){return parseInt(localStorage.getItem('lh_meta')||'20');}
+
+function atualizarMeta(){
+  const meta=getMeta();
+  const hoje=new Date().toDateString();
+  const contatadosHoje=getAll().filter(l=>{
+    if(l._status!=='contatado'&&l._status!=='fechado')return false;
+    if(!l._contatadoEm)return false;
+    return new Date(l._contatadoEm).toDateString()===hoje;
+  }).length;
+  const pct=Math.min(100,Math.round(contatadosHoje/meta*100));
+  const el=document.getElementById('metaFill');
+  const num=document.getElementById('metaNum');
+  const metaInput=document.getElementById('metaValor');
+  if(el)el.style.width=pct+'%';
+  if(num)num.textContent=`${contatadosHoje} / ${meta}`;
+  if(metaInput)metaInput.value=meta;
+  if(el)el.style.background=pct>=100?'var(--green)':pct>=60?'var(--amber)':'var(--accent)';
+}
+
+function diasDesde(ts){
+  if(!ts)return null;
+  const diff=Date.now()-new Date(ts).getTime();
+  return Math.floor(diff/(1000*60*60*24));
+}
+
+function labelDias(l){
+  if(l._status==='contatado'&&l._contatadoEm){
+    const d=diasDesde(l._contatadoEm);
+    if(d===0)return'<span class="dias-badge">📅 Contatado hoje</span>';
+    if(d===1)return'<span class="dias-badge">📅 Contatado ontem</span>';
+    if(d>=3)return`<span class="followup-tag">⚠️ ${d} dias sem resposta</span>`;
+    return`<span class="dias-badge">📅 ${d} dias atrás</span>`;
+  }
+  return'';
+}
+
+function taxaConversao(){
+  const all=getAll();
+  if(!all.length)return'0%';
+  const fechados=all.filter(l=>l._status==='fechado').length;
+  const contatados=all.filter(l=>l._status==='contatado'||l._status==='fechado').length;
+  if(!contatados)return'0%';
+  return Math.round(fechados/contatados*100)+'%';
+}
+
 // ── Gerador de script de abordagem ────────────────────────────────────────────
 let scriptTelAtual='';
 let scriptPlaceIdAtual='';
 
 const TEXTO_ABORDAGEM=`GANHAR 1 FATURA NO PIX?
+
 JÁ IMAGINOU? 🤔💭
 Além de PAGAR MAIS BARATO e melhorar a qualidade do sinal da sua empresa, você ainda leva 1 FATURA TOTALMENTE NO SEU PIX! 💸💰
+
 🎁 O SEU PRESENTE EXCLUSIVO:
 Após 7 dias da instalação concluída, eu envio o valor de 01 FATURA INTEGRAL direto para a sua chave PIX! 🚀`;
 
@@ -872,7 +966,7 @@ function renderModal(){
 
   document.getElementById('modalBody').innerHTML=`
     <div style="margin-bottom:10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Mensagem de abordagem</div>
-    <div class="script-content" id="scriptContent" style="white-space:pre-wrap">${TEXTO_ABORDAGEM}</div>
+    <div class="script-content" id="scriptContent" style="white-space:pre-wrap"></div>
     <div class="script-horario"><strong>💡 Lembre-se:</strong> anexe a imagem manualmente antes de enviar no WhatsApp.</div>
     <div class="modal-actions">
       <button class="btn-act act-copy" onclick="cpScript()">
@@ -886,12 +980,13 @@ function renderModal(){
     </div>
     <div id="contatadoMsg" style="display:none;margin-top:10px;font-size:12px;color:var(--green);text-align:center">✓ Lead marcado como Contatado automaticamente!</div>
   `;
+  // Usa innerText para preservar quebras de linha sem escapar HTML
+  document.getElementById('scriptContent').innerText=TEXTO_ABORDAGEM;
 }
 
 function marcarContatado(){
   if(!scriptPlaceIdAtual)return;
-  updateLead(scriptPlaceIdAtual,{_status:'contatado'});
-  // Atualiza o card na tela sem fechar o modal
+  updateLead(scriptPlaceIdAtual,{_status:'contatado',_contatadoEm:new Date().toISOString()});
   const card=document.getElementById('card-'+scriptPlaceIdAtual);
   if(card){
     card.className=card.className.replace(/status-\w+/,'status-contatado');
@@ -901,6 +996,7 @@ function marcarContatado(){
     if(sel)sel.value='contatado';
   }
   document.getElementById('contatadoMsg').style.display='block';
+  atualizarMeta();
   if(currentTab==='hist')renderHist();
 }
 
