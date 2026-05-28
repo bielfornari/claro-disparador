@@ -938,7 +938,7 @@ function taxaConversao(){
 let scriptTelAtual='';
 let scriptPlaceIdAtual='';
 
-const TEXTO_ABORDAGEM=`GANHAR 1 FATURA NO PIX?
+const TEXTO_PIX=`GANHAR 1 FATURA NO PIX?
 
 JÁ IMAGINOU? 🤔💭
 Além de PAGAR MAIS BARATO e melhorar a qualidade do sinal da sua empresa, você ainda leva 1 FATURA TOTALMENTE NO SEU PIX! 💸💰
@@ -946,9 +946,48 @@ Além de PAGAR MAIS BARATO e melhorar a qualidade do sinal da sua empresa, você
 🎁 O SEU PRESENTE EXCLUSIVO:
 Após 7 dias da instalação concluída, eu envio o valor de 01 FATURA INTEGRAL direto para a sua chave PIX! 🚀`;
 
+let scriptNomeEmpresa='';
+let scriptTelAtual='';
+let scriptPlaceIdAtual='';
+let tipoMsgAtual='email';
+
+function gerarEmailFake(nome){
+  const limpo=nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,'').trim();
+  const palavras=limpo.split(/\s+/).filter(p=>p.length>2&&!['do','da','de','dos','das','em','com'].includes(p));
+  const slug=palavras.slice(0,2).join('');
+  const prefixos=['contato','financeiro','adm','comercial','atendimento'];
+  const prefixo=prefixos[Math.floor(Math.random()*prefixos.length)];
+  return slug?`${prefixo}@${slug}.com.br`:`${prefixo}@empresa.com.br`;
+}
+
+function getSaudacao(tipo){
+  if(tipo==='manha')return'Bom dia';
+  if(tipo==='tarde')return'Boa tarde';
+  if(tipo==='noite')return'Boa noite';
+  const h=new Date().getHours();
+  if(h>=6&&h<12)return'Bom dia';
+  if(h>=12&&h<18)return'Boa tarde';
+  return'Boa noite';
+}
+
+function gerarMensagemEmail(){
+  const saudTipo=document.getElementById('saudacaoSel')?.value||'auto';
+  const saud=getSaudacao(saudTipo);
+  const email=gerarEmailFake(scriptNomeEmpresa);
+  return`Oii, ${saud}! 😊
+
+Me chamo Gabriel e sou Gerente de Contas da Claro Empresas.
+
+Encaminhei um e-mail com uma oferta que foi liberada exclusivamente para o CNPJ de vocês — vocês receberam?
+
+📧 Enviei para: *${email}*`;
+}
+
 function abrirScript(placeId,nome,tel){
   scriptTelAtual=tel;
   scriptPlaceIdAtual=placeId;
+  scriptNomeEmpresa=nome;
+  tipoMsgAtual='email';
   document.getElementById('modalEmpresa').textContent=nome+(tel?`  |  ${tel}`:'');
   renderModal();
   document.getElementById('modalOverlay').classList.add('open');
@@ -962,26 +1001,60 @@ function fecharModal(e){
 function renderModal(){
   const num=(scriptTelAtual||'').replace(/\D/g,'');
   const n55=num.startsWith('55')?num:'55'+num;
-  const waLink=num?`https://wa.me/${n55}?text=${encodeURIComponent(TEXTO_ABORDAGEM)}`:'';
-
   document.getElementById('modalBody').innerHTML=`
-    <div style="margin-bottom:10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Mensagem de abordagem</div>
+    <div style="display:flex;gap:4px;margin-bottom:1rem;flex-wrap:wrap">
+      <button class="stab on" id="tipo-email" onclick="setTipoMsg('email',this)">📧 Abordagem e-mail</button>
+      <button class="stab" id="tipo-pix" onclick="setTipoMsg('pix',this)">💸 Oferta PIX</button>
+    </div>
+    <div id="saudacaoRow" style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--muted)">Saudação:</span>
+      <select id="saudacaoSel" onchange="atualizarPreview()" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:6px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none">
+        <option value="auto">Automático (hora atual)</option>
+        <option value="manha">Bom dia</option>
+        <option value="tarde">Boa tarde</option>
+        <option value="noite">Boa noite</option>
+      </select>
+      <button class="stab" onclick="atualizarPreview()" style="font-size:11px;padding:4px 10px">🔄 Novo e-mail</button>
+    </div>
+    <div style="margin-bottom:8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Prévia da mensagem</div>
     <div class="script-content" id="scriptContent" style="white-space:pre-wrap"></div>
-    <div class="script-horario"><strong>💡 Lembre-se:</strong> anexe a imagem manualmente antes de enviar no WhatsApp.</div>
+    <div class="script-horario" id="dicaModal"><strong>💡 Dica:</strong> se o cliente disser que não recebeu o e-mail, mude para a aba Oferta PIX!</div>
     <div class="modal-actions">
       <button class="btn-act act-copy" onclick="cpScript()">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         Copiar mensagem
       </button>
-      ${waLink?`<a href="${waLink}" target="_blank" class="btn-act act-wa" onclick="marcarContatado()">
+      ${num?`<a id="linkWaModal" href="#" target="_blank" class="btn-act act-wa" onclick="marcarContatado()">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Abrir WhatsApp ✓
       </a>`:''}
     </div>
     <div id="contatadoMsg" style="display:none;margin-top:10px;font-size:12px;color:var(--green);text-align:center">✓ Lead marcado como Contatado automaticamente!</div>
   `;
-  // Usa innerText para preservar quebras de linha sem escapar HTML
-  document.getElementById('scriptContent').innerText=TEXTO_ABORDAGEM;
+  atualizarPreview();
+}
+
+function setTipoMsg(tipo,btn){
+  tipoMsgAtual=tipo;
+  document.querySelectorAll('#modalBody .stab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const saudRow=document.getElementById('saudacaoRow');
+  if(saudRow)saudRow.style.display=tipo==='email'?'flex':'none';
+  const dica=document.getElementById('dicaModal');
+  if(dica)dica.innerHTML=tipo==='email'
+    ?'<strong>💡 Dica:</strong> se o cliente disser que não recebeu o e-mail, mude para a aba Oferta PIX!'
+    :'<strong>💡 Lembre-se:</strong> anexe a imagem manualmente antes de enviar no WhatsApp.';
+  atualizarPreview();
+}
+
+function atualizarPreview(){
+  const txt=tipoMsgAtual==='email'?gerarMensagemEmail():TEXTO_PIX;
+  const el=document.getElementById('scriptContent');
+  if(el)el.innerText=txt;
+  const num=(scriptTelAtual||'').replace(/\D/g,'');
+  const n55=num.startsWith('55')?num:'55'+num;
+  const link=document.getElementById('linkWaModal');
+  if(link&&num)link.href=`https://wa.me/${n55}?text=${encodeURIComponent(txt)}`;
 }
 
 function marcarContatado(){
@@ -995,13 +1068,15 @@ function marcarContatado(){
     const sel=card.querySelector('.status-select');
     if(sel)sel.value='contatado';
   }
-  document.getElementById('contatadoMsg').style.display='block';
+  const msg=document.getElementById('contatadoMsg');
+  if(msg)msg.style.display='block';
   atualizarMeta();
   if(currentTab==='hist')renderHist();
 }
 
 function cpScript(){
-  navigator.clipboard.writeText(TEXTO_ABORDAGEM).then(()=>{
+  const txt=document.getElementById('scriptContent')?.innerText||'';
+  navigator.clipboard.writeText(txt).then(()=>{
     const btn=document.querySelector('.modal-actions .act-copy');
     if(!btn)return;
     const old=btn.innerHTML;
