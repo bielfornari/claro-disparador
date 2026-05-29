@@ -470,10 +470,13 @@ function setStatusFilter(s){
   renderHist();
 }
 
-// chip CNPJ toggle
-document.getElementById('c-cnpj').querySelector('input').addEventListener('change',function(){
-  document.getElementById('c-cnpj').classList.toggle('on',this.checked);
-});
+// chip CNPJ toggle (só existe no modo bairro)
+const chipCnpj=document.getElementById('c-cnpj');
+if(chipCnpj){
+  chipCnpj.querySelector('input').addEventListener('change',function(){
+    chipCnpj.classList.toggle('on',this.checked);
+  });
+}
 
 // chips de filtro
 ['c1','c3'].forEach(id=>{
