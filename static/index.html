@@ -542,7 +542,7 @@ async function buscarSegmento(){
       tok=d.next_page_token||null;if(!tok)break;pg++;
     }
     if(!raw.length){setStatus('Nenhum resultado.',0);btn.disabled=false;return;}
-    await carregarDetalhes(raw,qtd,cid,false);
+    await carregarDetalhes(raw,qtd,cid,true);
   }catch(e){setStatus('Erro: '+e.message,0);}
   btn.disabled=false;
 }
@@ -969,6 +969,14 @@ function getSaudacao(tipo){
   return'Boa noite';
 }
 
+function gerarMensagemDireta(){
+  const tipo=document.getElementById('saudacaoSel')?.value||'auto';
+  const saud=getSaudacao(tipo);
+  return`Oii, ${saud}! 😊
+
+Eu falo com a empresa *${scriptNomeEmpresa}*?`;
+}
+
 function gerarMensagemEmail(){
   const tipo=document.getElementById('saudacaoSel')?.value||'auto';
   const saud=getSaudacao(tipo);
@@ -983,14 +991,16 @@ Encaminhei um e-mail com uma oferta que foi liberada exclusivamente para o CNPJ 
 }
 
 function getMsgAtual(){
-  return tipoMsgAtual==='pix'?TEXTO_PIX:gerarMensagemEmail();
+  if(tipoMsgAtual==='pix')return TEXTO_PIX;
+  if(tipoMsgAtual==='direta')return gerarMensagemDireta();
+  return gerarMensagemEmail();
 }
 
 function abrirScript(placeId,nome,tel){
   scriptTelAtual=tel;
   scriptPlaceIdAtual=placeId;
   scriptNomeEmpresa=nome;
-  tipoMsgAtual='email';
+  tipoMsgAtual='direta';
   document.getElementById('modalEmpresa').textContent=nome+(tel?`  |  ${tel}`:'');
   renderModal();
   document.getElementById('modalOverlay').classList.add('open');
@@ -1007,7 +1017,8 @@ function renderModal(){
 
   document.getElementById('modalBody').innerHTML=`
     <div style="display:flex;gap:4px;margin-bottom:1rem;flex-wrap:wrap">
-      <button class="stab on" onclick="setTipoMsg('email',this)">📧 Abordagem e-mail</button>
+      <button class="stab on" onclick="setTipoMsg('direta',this)">👋 Abordagem direta</button>
+      <button class="stab" onclick="setTipoMsg('email',this)">📧 Gancho e-mail</button>
       <button class="stab" onclick="setTipoMsg('pix',this)">💸 Oferta PIX</button>
     </div>
     <div id="saudRow" style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
@@ -1022,7 +1033,7 @@ function renderModal(){
     </div>
     <div style="margin-bottom:8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Prévia</div>
     <div class="script-content" id="scriptContent" style="white-space:pre-wrap"></div>
-    <div class="script-horario" id="dicaModal"><strong>💡 Dica:</strong> se disser que não recebeu o e-mail, troque para Oferta PIX!</div>
+    <div class="script-horario" id="dicaModal"><strong>💡 Fluxo ideal:</strong> Abordagem direta → Gancho e-mail → Oferta PIX</div>
     <div class="modal-actions">
       <button class="btn-act act-copy" onclick="cpScript()">
         <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -1043,11 +1054,13 @@ function setTipoMsg(tipo,btn){
   document.querySelectorAll('#modalBody .stab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   const saudRow=document.getElementById('saudRow');
-  if(saudRow)saudRow.style.display=tipo==='email'?'flex':'none';
+  if(saudRow)saudRow.style.display=tipo==='pix'?'none':'flex';
   const dica=document.getElementById('dicaModal');
-  if(dica)dica.innerHTML=tipo==='email'
-    ?'<strong>💡 Dica:</strong> se disser que não recebeu o e-mail, troque para Oferta PIX!'
-    :'<strong>💡 Lembre-se:</strong> anexe a imagem manualmente antes de enviar no WhatsApp.';
+  if(dica){
+    if(tipo==='direta')dica.innerHTML='<strong>💡 Use para confirmar contato:</strong> aguarde resposta antes de apresentar a oferta.';
+    else if(tipo==='email')dica.innerHTML='<strong>💡 Gancho poderoso:</strong> se disser que não recebeu, troque para Oferta PIX!';
+    else dica.innerHTML='<strong>💡 Lembre-se:</strong> anexe a imagem manualmente antes de enviar no WhatsApp.';
+  }
   atualizarPreview();
 }
 
